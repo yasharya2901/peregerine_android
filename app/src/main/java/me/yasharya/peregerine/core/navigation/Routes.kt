@@ -1,4 +1,5 @@
 package me.yasharya.peregerine.core.navigation
 
-class Routes {
+object Routes {
+    const val INVENTORY_LIST = "inventory/list"
 }
