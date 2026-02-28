@@ -10,6 +10,7 @@ import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEnt
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toDomain
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toEntity
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
+import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
 import me.yasharya.peregerine.feature_inventory.domain.repository.InventoryRepository
 
@@ -48,7 +49,7 @@ class InventoryRepositoryImpl (
     override suspend fun adjustStock(
         productId: String,
         deltaQty: Double,
-        type: String,
+        type: StockChangeType,
         note: String?,
         referenceId: String?
     ) {

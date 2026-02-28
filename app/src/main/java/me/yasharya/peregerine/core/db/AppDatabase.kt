@@ -2,6 +2,8 @@ package me.yasharya.peregerine.core.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import me.yasharya.peregerine.core.db.typeconverters.Converters
 import me.yasharya.peregerine.feature_inventory.data.local.dao.ProductDao
 import me.yasharya.peregerine.feature_inventory.data.local.dao.StockLedgerDao
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductEntity
@@ -12,6 +14,7 @@ import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEnt
     version = 1,
     exportSchema = true
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun stockLedgerDao(): StockLedgerDao

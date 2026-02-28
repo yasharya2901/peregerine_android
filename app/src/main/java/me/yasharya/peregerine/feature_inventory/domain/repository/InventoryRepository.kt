@@ -2,6 +2,7 @@ package me.yasharya.peregerine.feature_inventory.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
+import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
 
 interface InventoryRepository {
@@ -15,7 +16,7 @@ interface InventoryRepository {
     suspend fun updateProduct(product: Product)
     suspend fun deactivateProduct(productId: String)
 
-    suspend fun adjustStock(productId: String, deltaQty: Double, type: String, note: String?, referenceId: String? = null)
+    suspend fun adjustStock(productId: String, deltaQty: Double, type: StockChangeType, note: String?, referenceId: String? = null)
 
     fun observeProductLedger(productId: String): Flow<List<StockLedgerEntry>>
 }
