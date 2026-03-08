@@ -25,13 +25,18 @@ interface ProductDao {
 
     @Query("""
         SELECT * FROM products
-        WHERE (isActive = :activeOnly)
-        AND
-        (name LIKE '%' || :query || '%')
+        WHERE (isActive = :activeOnly OR :includeInactive = 1)
+        AND (
+            name LIKE '%' || :query || '%'
+            OR barcode = :query
+        )
         ORDER BY createdAt DESC
-        
     """)
-    fun searchPagedProducts(query: String, activeOnly: Boolean): PagingSource<Int, ProductEntity>
+    fun searchPagedProducts(
+        query: String,
+        activeOnly: Boolean,
+        includeInactive: Boolean
+    ): PagingSource<Int, ProductEntity>
 
     @Query("""
         SELECT * FROM products

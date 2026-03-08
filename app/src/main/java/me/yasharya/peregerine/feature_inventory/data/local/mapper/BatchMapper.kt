@@ -2,7 +2,6 @@ package me.yasharya.peregerine.feature_inventory.data.local.mapper
 
 import me.yasharya.peregerine.feature_inventory.data.local.entity.BatchEntity
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
-import kotlin.math.cos
 
 fun BatchEntity.toDomain(): Batch = Batch(
     id = id,

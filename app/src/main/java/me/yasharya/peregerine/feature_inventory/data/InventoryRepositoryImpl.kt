@@ -37,7 +37,7 @@ class InventoryRepositoryImpl (
                 if (query.isEmpty()) {
                     productDao.getPagedProducts(active, inactive)
                 } else {
-                    productDao.searchPagedProducts(query, active)
+                    productDao.searchPagedProducts(query, active, inactive)
                 }
             }
         ).flow.map { pagingData ->
