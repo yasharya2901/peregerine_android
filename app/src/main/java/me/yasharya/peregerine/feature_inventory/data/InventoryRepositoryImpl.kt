@@ -11,12 +11,10 @@ import me.yasharya.peregerine.core.db.AppDatabase
 import me.yasharya.peregerine.core.util.Constants
 import me.yasharya.peregerine.core.util.Ids
 import me.yasharya.peregerine.core.util.Time
-import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEntity
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toDomain
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toEntity
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
-import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventoryDetail
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry

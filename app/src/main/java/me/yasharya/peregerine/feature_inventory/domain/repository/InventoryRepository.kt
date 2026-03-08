@@ -4,7 +4,6 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
-import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventoryDetail
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
@@ -25,7 +24,7 @@ interface InventoryRepository {
     // Batch
     fun observeBatchesForProduct(productId: String): Flow<List<Batch>>
     fun observeBatchById(batchId: String): Flow<Batch?>
-    suspend fun getBatchById(batchId: String): Batch?                    // transactions use this
+    suspend fun getBatchById(batchId: String): Batch?
 
     suspend fun upsertBatch(batch: Batch)
     suspend fun deactivateBatch(batchId: String)
