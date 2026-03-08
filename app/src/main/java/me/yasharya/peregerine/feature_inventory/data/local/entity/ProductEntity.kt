@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "products",
     indices = [
         Index(value = ["name"]),
+        Index(value = ["isActive"]),
         Index(value = ["barcode"], unique = true)
     ]
 )
@@ -16,12 +17,11 @@ data class ProductEntity (
     @PrimaryKey val id: String,
     val name: String,
     val barcode: String?,
-    val sellingPrice: Long,
-    val costPrice: Long?,
     val unit: String,
-    val stockQty: Double,
+    val defaultSellingPrice: Long?,
+    val defaultCostPrice: Long?,
+    val defaultMRP: Long?,
     val lowStockThreshold: Double?,
-    val notes: String?,
     val isActive: Boolean,
     val createdAt: Long,
     val updatedAt: Long

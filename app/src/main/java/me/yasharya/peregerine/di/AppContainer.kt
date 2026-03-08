@@ -5,32 +5,37 @@ import androidx.room.Room
 import me.yasharya.peregerine.core.db.AppDatabase
 import me.yasharya.peregerine.feature_inventory.data.InventoryRepositoryImpl
 import me.yasharya.peregerine.feature_inventory.domain.repository.InventoryRepository
-import me.yasharya.peregerine.feature_inventory.domain.usecase.AdjustStock
-import me.yasharya.peregerine.feature_inventory.domain.usecase.CreateProduct
-import me.yasharya.peregerine.feature_inventory.domain.usecase.DeactivateProduct
-import me.yasharya.peregerine.feature_inventory.domain.usecase.ObserveLowStockProducts
-import me.yasharya.peregerine.feature_inventory.domain.usecase.ObserveProductLedger
-import me.yasharya.peregerine.feature_inventory.domain.usecase.ObserveProducts
-import me.yasharya.peregerine.feature_inventory.domain.usecase.SearchProducts
-import me.yasharya.peregerine.feature_inventory.domain.usecase.UpdateProduct
+import me.yasharya.peregerine.feature_inventory.domain.usecase.*
 
 class AppContainer(context: Context) {
     val db: AppDatabase = Room.databaseBuilder(
         context,
         AppDatabase::class.java,
-        "shopadd.db"
+        "shopapp.db"
     )
         .fallbackToDestructiveMigration(false)
         .build()
 
     val inventoryRepository: InventoryRepository = InventoryRepositoryImpl(db)
 
-    val createProduct = CreateProduct(inventoryRepository)
-    val updateProduct = UpdateProduct(inventoryRepository)
-    val deactivateProduct = DeactivateProduct(inventoryRepository)
-    val adjustStock = AdjustStock(inventoryRepository)
-    val observeProducts = ObserveProducts(inventoryRepository)
-    val searchProducts = SearchProducts(inventoryRepository)
-    val observeLowStock = ObserveLowStockProducts(inventoryRepository)
-    val observeProductLedger = ObserveProductLedger(inventoryRepository)
+    val inventoryUseCases = InventoryUseCases(
+        observeAllProducts = ObserveAllProducts(inventoryRepository),
+        searchProducts = SearchProducts(inventoryRepository),
+        observeProduct = ObserveProduct(inventoryRepository),
+        createProduct = CreateProduct(inventoryRepository),
+        activateProduct = ActivateProduct(inventoryRepository),
+        deactivateProduct = DeactivateProduct(inventoryRepository),
+        observeProductInventorySummary = ObserveProductInventorySummary(inventoryRepository),
+        observeLowStockProducts = ObserveLowStockProducts(inventoryRepository),
+        observeOutOfStockProducts = ObserveOutOfStockProducts(inventoryRepository),
+        observeBatchesForProduct = ObserveBatchesForProduct(inventoryRepository),
+        upsertBatch = UpsertBatch(inventoryRepository),
+        activateBatch = ActivateBatch(inventoryRepository),
+        deactivateBatch = DeactivateBatch(inventoryRepository),
+        observeStockLedgerForProduct = ObserveStockLedgerForProduct(inventoryRepository),
+        observeAllStockLedger = ObserveAllStockLedger(inventoryRepository),
+        insertStockLedgerEntry = InsertStockLedgerEntry(inventoryRepository),
+        insertMultipleStockLedgerEntries = InsertMultipleStockLedgerEntries(inventoryRepository),
+        adjustStock = AdjustStock(inventoryRepository)
+    )
 }

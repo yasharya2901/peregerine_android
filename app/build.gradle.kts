@@ -47,9 +47,10 @@ kotlin {
 dependencies {
     // --- Room (SQLite) ---
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx) // ✅ added: Flow + coroutines support for Room DAOs
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.paging.common)
 
-    // ✅ added: Room codegen
     ksp(libs.androidx.room.compiler)
     
 
@@ -58,16 +59,8 @@ dependencies {
 
     // Lifecycle runtime (you already had this)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // ✅ added: ViewModel integration with Compose (viewModel(), etc.)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
-    // --- Coroutines ---
-    // ✅ added: Dispatcher/Main + Android coroutine support
     implementation(libs.kotlinx.coroutines.android)
-
-    // --- Navigation (Compose) ---
-    // ✅ added: NavHost / composable(...) etc.
     implementation(libs.androidx.navigation.compose)
 
     // --- Compose UI ---

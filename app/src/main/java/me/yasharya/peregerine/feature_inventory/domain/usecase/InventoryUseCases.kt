@@ -1,0 +1,22 @@
+package me.yasharya.peregerine.feature_inventory.domain.usecase
+
+data class InventoryUseCases(
+    val observeAllProducts: ObserveAllProducts,
+    val searchProducts: SearchProducts,
+    val observeProduct: ObserveProduct,
+    val createProduct: CreateProduct,
+    val activateProduct: ActivateProduct,
+    val deactivateProduct: DeactivateProduct,
+    val observeProductInventorySummary: ObserveProductInventorySummary,
+    val observeLowStockProducts: ObserveLowStockProducts,
+    val observeOutOfStockProducts: ObserveOutOfStockProducts,
+    val observeBatchesForProduct: ObserveBatchesForProduct,
+    val upsertBatch: UpsertBatch,
+    val activateBatch: ActivateBatch,
+    val deactivateBatch: DeactivateBatch,
+    val observeStockLedgerForProduct: ObserveStockLedgerForProduct,
+    val observeAllStockLedger: ObserveAllStockLedger,
+    val insertStockLedgerEntry: InsertStockLedgerEntry,
+    val insertMultipleStockLedgerEntries: InsertMultipleStockLedgerEntries,
+    val adjustStock: AdjustStock
+)

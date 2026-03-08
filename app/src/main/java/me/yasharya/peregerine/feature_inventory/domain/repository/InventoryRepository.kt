@@ -1,22 +1,46 @@
 package me.yasharya.peregerine.feature_inventory.domain.repository
 
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
+import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventoryDetail
+import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
 
 interface InventoryRepository {
-    fun observeProducts(activeOnly: Boolean = true): Flow<List<Product>>
-    fun searchProducts(query: String, activeOnly: Boolean = true): Flow<List<Product>>
-    fun observeLowStockProducts(): Flow<List<Product>>
+    // Products
+    fun observePagedProducts(query: String = "", active: Boolean = true, inactive: Boolean = false): Flow<PagingData<Product>>
 
-    suspend fun getProductById(productId: String): Product?
-    suspend fun getProductByBarcode(barcode: String): Product?
-    suspend fun createProduct(product: Product)
-    suspend fun updateProduct(product: Product)
+    fun observeProductById(productId: String): Flow<Product?>
+    suspend fun upsertProduct(product: Product)
     suspend fun deactivateProduct(productId: String)
+    suspend fun activateProduct(productId: String)
 
-    suspend fun adjustStock(productId: String, deltaQty: Double, type: StockChangeType, note: String?, referenceId: String? = null)
+    fun observePagedInventorySummary(activeOnly: Boolean = true): Flow<PagingData<ProductInventorySummary>>
+    fun observePagedLowStockInventory(): Flow<PagingData<ProductInventorySummary>>
+    fun observePagedOutOfStockInventory(): Flow<PagingData<ProductInventorySummary>>
 
-    fun observeProductLedger(productId: String): Flow<List<StockLedgerEntry>>
+    // Batch
+    fun observeBatchesForProduct(productId: String): Flow<List<Batch>>
+    fun observeBatchById(batchId: String): Flow<Batch?>
+    suspend fun getBatchById(batchId: String): Batch?                    // transactions use this
+
+    suspend fun upsertBatch(batch: Batch)
+    suspend fun deactivateBatch(batchId: String)
+    suspend fun activateBatch(batchId: String)
+
+    // Stock Ledger
+    fun observeStockLedgerForProduct(
+        productId: String
+    ): Flow<PagingData<StockLedgerEntry>>
+
+    fun observeAllStockLedger(): Flow<PagingData<StockLedgerEntry>>
+
+    suspend fun insertStockLedgerEntry(entry: StockLedgerEntry)
+    suspend fun insertMultipleStockLedgerEntry(entries: List<StockLedgerEntry>)
+
+    suspend fun adjustStockTransactional(productId: String, batchId: String, deltaQty: Double, type: StockChangeType, referenceId: String?, note: String?)
+
 }

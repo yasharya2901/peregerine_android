@@ -1,51 +1,141 @@
 package me.yasharya.peregerine.feature_inventory.data.local.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductEntity
+import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductInventorySummaryDto
 
 
 @Dao
 interface ProductDao {
-    @Query("SELECT * FROM products WHERE (:activeOnly = 0 OR isActive = 1) ORDER BY name ASC")
-    fun observeProducts(activeOnly: Int): Flow<List<ProductEntity>>
+    @Query("""
+        SELECT * FROM products
+        WHERE (:active = 1 AND isActive = 1) 
+        OR 
+        (:inactives = 1 AND (isActive = 0 OR isActive IS NULL))
+        ORDER BY createdAt DESC
+    """)
+    fun getPagedProducts(active: Boolean, inactives: Boolean): PagingSource<Int, ProductEntity>
 
     @Query("""
         SELECT * FROM products
-        WHERE (:activeOnly = 0 OR isActive = 1)
-        AND (name LIKE '%' || :q || '%' OR barcode = :q)
-        ORDER BY name ASC
+        WHERE (isActive = :activeOnly)
+        AND
+        (name LIKE '%' || :query || '%')
+        ORDER BY createdAt DESC
+        
     """)
-    fun searchProducts(q: String, activeOnly: Int): Flow<List<ProductEntity>>
+    fun searchPagedProducts(query: String, activeOnly: Boolean): PagingSource<Int, ProductEntity>
 
     @Query("""
         SELECT * FROM products
-        WHERE isActive = 1
-        AND lowStockThreshold IS NOT NULL
-        AND stockQty <= lowStockThreshold
-        ORDER BY stockQty ASC, name ASC
+        WHERE id = :productId
+        LIMIT 1
+        """)
+    fun getProductById(productId: String): Flow<ProductEntity?>
+
+    @Upsert
+    suspend fun upsert(product: ProductEntity)
+
+    @Query("""
+        UPDATE products
+        SET isActive = :isActive, updatedAt = :updatedAt
+        WHERE id = :productId
     """)
-    fun observeLowStockProducts(): Flow<List<ProductEntity>>
+    suspend fun changeActiveStatusProduct(productId: String, isActive: Boolean, updatedAt: Long)
 
-    @Query("SELECT * FROM products WHERE id = :id LIMIT 1")
-    suspend fun getById(id: String): ProductEntity?
+    @Query("""
+        SELECT 
+            p.*,
+            q.totalQtyAvailable,
+            CASE 
+                WHEN q.totalQtyAvailable <= COALESCE(p.lowStockThreshold, 0)
+                     AND q.totalQtyAvailable > 0
+                THEN 1 ELSE 0
+            END as isLowStock,
+            CASE 
+                WHEN q.totalQtyAvailable <= 0
+                THEN 1 ELSE 0
+            END as isOutOfStock
+        FROM products p
+        LEFT JOIN (
+            SELECT 
+                productId,
+                COALESCE(SUM(
+                    CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END
+                ), 0) as totalQtyAvailable
+            FROM batch
+            GROUP BY productId
+        ) q ON p.id = q.productId
+        WHERE p.isActive = :activeOnly
+        ORDER BY p.name ASC
+        
+    """)
+    fun getPagedProductInventorySummary(activeOnly: Boolean): PagingSource<Int, ProductInventorySummaryDto>
 
-    @Query("SELECT * FROM products WHERE barcode = :barcode LIMIT 1")
-    suspend fun getByBarcode(barcode: String): ProductEntity?
+    @Query("""
+        SELECT 
+            p.*,
+            q.totalQtyAvailable,
+            CASE
+                WHEN q.totalQtyAvailable <= COALESCE(p.lowStockThreshold, 0)
+                AND q.totalQtyAvailable > 0
+                THEN 1 ELSE 0
+            END as isLowStock,
+            CASE
+                WHEN q.totalQtyAvailable <= 0
+                THEN 1 ELSE 0
+            END as isOutOfStock
+        FROM products p
+        LEFT JOIN (
+            SELECT
+                productId,
+                COALESCE(SUM(
+                    CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END
+                ),0) as totalQtyAvailable
+                FROM batch
+                GROUP BY productId
+        ) as q ON p.id = q.productId
+        WHERE p.isActive = 1
+        AND q.totalQtyAvailable <= COALESCE(p.lowStockThreshold, 0)
+        AND q.totalQtyAvailable > 0
+        ORDER BY p.createdAt ASC
+    """)
+    fun getPagedLowStockInventorySummary(): PagingSource<Int, ProductInventorySummaryDto>
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(product: ProductEntity)
+    @Query("""
+        SELECT 
+            p.*,
+            q.totalQtyAvailable,
+            CASE
+                WHEN q.totalQtyAvailable <= COALESCE(p.lowStockThreshold, 0)
+                AND q.totalQtyAvailable > 0
+                THEN 1 ELSE 0
+            END as isLowStock,
+            CASE
+                WHEN q.totalQtyAvailable <= 0
+                THEN 1 ELSE 0
+            END as isOutOfStock
+            FROM products p
+        LEFT JOIN (
+            SELECT 
+                productId,
+                COALESCE(SUM(
+                    CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END
+                ), 0) as totalQtyAvailable
+                FROM batch
+                GROUP BY productId
+        ) as q ON p.id = q.productId
+        WHERE p.isActive = 1
+        AND q.totalQtyAvailable <= 0
+        ORDER BY p.createdAt ASC
+    """)
+    fun getPagedOutOfStockInventorySummary(): PagingSource<Int, ProductInventorySummaryDto>
 
-    @Update
-    suspend fun update(product: ProductEntity)
-
-    @Query("UPDATE products SET isActive = 0, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun deactivate(id: String, updatedAt: Long)
-
-    @Query("UPDATE products SET stockQty = stockQty + :deltaQty, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun addToStock(id: String, deltaQty: Double, updatedAt: Long)
 }
