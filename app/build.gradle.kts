@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.paging.common)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.paging.compose)
 
     ksp(libs.androidx.room.compiler)
     
