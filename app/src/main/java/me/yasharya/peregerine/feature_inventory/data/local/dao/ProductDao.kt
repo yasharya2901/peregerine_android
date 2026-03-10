@@ -124,23 +124,65 @@ interface ProductDao {
                 THEN 1 ELSE 0
             END as isLowStock,
             CASE
-                WHEN q.totalQtyAvailable <= 0
+                WHEN q.productId IS NOT NULL AND q.totalQtyAvailable <= 0
                 THEN 1 ELSE 0
             END as isOutOfStock
             FROM products p
         LEFT JOIN (
             SELECT 
                 productId,
-                COALESCE(SUM(
-                    CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END
-                ), 0) as totalQtyAvailable
-                FROM batch
-                GROUP BY productId
-        ) as q ON p.id = q.productId
+                SUM(CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END) as totalQtyAvailable
+            FROM batch
+            GROUP BY productId
+        ) q ON p.id = q.productId
         WHERE p.isActive = 1
+        AND q.productId IS NOT NULL
         AND q.totalQtyAvailable <= 0
         ORDER BY p.createdAt ASC
     """)
     fun getPagedOutOfStockInventorySummary(): PagingSource<Int, ProductInventorySummaryDto>
 
+    @Query("SELECT COUNT(*) FROM products WHERE isActive = 1")
+    fun observeTotalActiveProductCount(): Flow<Int>
+
+    @Query("""
+       SELECT COUNT(*) FROM products p
+       LEFT JOIN (
+            SELECT productId, SUM(CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END) AS totalQtyAvailable
+            FROM batch
+            GROUP BY productId
+       ) q ON p.id = q.productId
+       WHERE p.isActive = 1
+       AND COALESCE(q.totalQtyAvailable, 0) <= COALESCE(p.lowStockThreshold, 0)
+       AND COALESCE(q.totalQtyAvailable, 0) > 0
+    """)
+    fun observeLowStockCount(): Flow<Int>
+
+    @Query("""
+       SELECT COUNT(*) FROM products p
+       LEFT JOIN (
+            SELECT productId, SUM(CASE WHEN isActive = 1 THEN qtyOnHand ELSE 0 END) AS totalQtyAvailable
+            FROM batch
+            GROUP BY productId
+       ) q ON p.id = q.productId
+       WHERE p.isActive = 1
+       AND q.productId IS NOT NULL
+       AND COALESCE(q.totalQtyAvailable, 0) <= 0
+    """)
+    fun observeOutOfStockCount(): Flow<Int>
+
+
+    @Query("""
+        SELECT 
+            p.*,
+            NULL as totalQtyAvailable,
+            0 as isLowStock,
+            0 as isOutOfStock
+        FROM products p
+        LEFT JOIN batch b ON p.id = b.productId
+        WHERE p.isActive = 1
+        AND b.productId IS NULL
+        ORDER BY p.createdAt ASC
+    """)
+    fun getPagedNotStockedInventorySummary(): PagingSource<Int, ProductInventorySummaryDto>
 }

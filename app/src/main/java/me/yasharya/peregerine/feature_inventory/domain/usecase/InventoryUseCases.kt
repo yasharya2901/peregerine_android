@@ -18,5 +18,9 @@ data class InventoryUseCases(
     val observeAllStockLedger: ObserveAllStockLedger,
     val insertStockLedgerEntry: InsertStockLedgerEntry,
     val insertMultipleStockLedgerEntries: InsertMultipleStockLedgerEntries,
-    val adjustStock: AdjustStock
-)
+    val adjustStock: AdjustStock,
+    val observeTotalActiveProductCount: ObserveTotalActiveProductCount,
+    val observeLowStockCount: ObserveLowStockCount,
+    val observeOutOfStockCount: ObserveOutOfStockCount,
+    val observeNotStockedProducts: ObserveNotStockedProducts
+    )

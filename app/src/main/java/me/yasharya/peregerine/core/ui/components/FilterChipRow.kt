@@ -8,8 +8,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import me.yasharya.peregerine.R
 import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryFilter
 
 @Composable
@@ -18,23 +20,26 @@ fun FilterChipRow(
     onFilterSelected: (InventoryFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val filters = listOf(
-        InventoryFilter.ALL to "All",
-        InventoryFilter.LOW_STOCK to "Low Stock",
-        InventoryFilter.OUT_OF_STOCK to "Out of Stock",
-        InventoryFilter.INACTIVE to "Inactive"
-    )
+    val filters = InventoryFilter.entries
 
     Row(
         modifier = modifier
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
-        filters.forEach { (filter, label) ->
+        filters.forEach { filter ->
+            val labelRes = when (filter) {
+                InventoryFilter.ALL -> R.string.filter_all
+                InventoryFilter.LOW_STOCK -> R.string.filter_low_stock
+                InventoryFilter.OUT_OF_STOCK -> R.string.filter_out_of_stock
+                InventoryFilter.INACTIVE -> R.string.filter_inactive
+                InventoryFilter.NOT_STOCKED -> R.string.filter_not_stocked
+            }
+
             FilterChip(
                 selected = selectedFilter == filter,
-                onClick = {onFilterSelected(filter)},
-                label = { Text(label) },
+                onClick = { onFilterSelected(filter) },
+                label = { Text(stringResource(labelRes)) },
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
         }
@@ -73,6 +78,15 @@ fun FilterChipRowPreview_OutOfStock() {
 fun FilterChipRowPreview_Inactive() {
     FilterChipRow(
         selectedFilter = InventoryFilter.INACTIVE,
+        onFilterSelected = { }
+    )
+}
+
+@Preview(name = "Not Stocked Selected", showBackground = true)
+@Composable
+fun FilterChipRowPreview_NotStocked() {
+    FilterChipRow(
+        selectedFilter = InventoryFilter.NOT_STOCKED,
         onFilterSelected = { }
     )
 }

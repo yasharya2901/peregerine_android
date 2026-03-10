@@ -4,7 +4,7 @@ import me.yasharya.peregerine.feature_inventory.domain.model.Product
 
 
 enum class InventoryFilter {
-    ALL, LOW_STOCK, OUT_OF_STOCK, INACTIVE
+    ALL, LOW_STOCK, OUT_OF_STOCK, INACTIVE, NOT_STOCKED
 }
 data class InventoryUiState(
     val filter: InventoryFilter = InventoryFilter.ALL,

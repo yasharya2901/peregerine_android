@@ -36,6 +36,10 @@ class AppContainer(context: Context) {
         observeAllStockLedger = ObserveAllStockLedger(inventoryRepository),
         insertStockLedgerEntry = InsertStockLedgerEntry(inventoryRepository),
         insertMultipleStockLedgerEntries = InsertMultipleStockLedgerEntries(inventoryRepository),
-        adjustStock = AdjustStock(inventoryRepository)
+        adjustStock = AdjustStock(inventoryRepository),
+        observeTotalActiveProductCount = ObserveTotalActiveProductCount(inventoryRepository),
+        observeLowStockCount = ObserveLowStockCount(inventoryRepository),
+        observeOutOfStockCount = ObserveOutOfStockCount(inventoryRepository),
+        observeNotStockedProducts = ObserveNotStockedProducts(inventoryRepository)
     )
 }

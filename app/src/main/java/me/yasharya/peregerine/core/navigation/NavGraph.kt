@@ -8,61 +8,88 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation3.runtime.entryProvider
 
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
+import kotlin.collections.listOf
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun NavGraph() {
-    val navController = rememberNavController()
     val context = LocalContext.current
     val container = (context.applicationContext as App).container
 
-    val inventoryViewModel = InventoryViewModel(container.inventoryUseCases)
+    val backStack = rememberNavBackStack(AppRoute.Inventory)
+    val currentRoute = backStack.last() as? AppRoute
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val showTabs = currentRoute?.isRoot() == true
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                BottomNavItem.all.forEach { item ->
-                    NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {saveState = true}
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label)}
-                    )
+            // Rest of the pages will open without tabs
+            if (showTabs){
+                NavigationBar {
+                    BottomNavItem.all.forEach { item ->
+                        NavigationBarItem(
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                val existingRoute = backStack.firstOrNull{it == item.route}
+                                if (existingRoute != null) {
+                                    backStack.remove(existingRoute)
+                                    backStack.add(existingRoute)
+                                } else {
+                                    backStack.add(item.route)
+                                }
+                            },
+                            icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
+                            label = { Text(stringResource(item.labelRes))}
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.INVENTORY,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.INVENTORY) {InventoryListScreen(inventoryViewModel)}
-            composable(Routes.PURCHASE_ORDER) {}
-            composable(Routes.SETTINGS) {}
-        }
+        NavDisplay(
+            backStack = backStack,
+            onBack = {
+                if (backStack.size > 1){
+                    backStack.removeLastOrNull()
+                }
+            },
+            modifier = Modifier.padding(innerPadding),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<AppRoute.Inventory> {
+                    val viewModel: InventoryViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer { InventoryViewModel(container.inventoryUseCases) }
+                        }
+                    )
+                    InventoryListScreen(viewModel)
+                }
+                entry<AppRoute.PurchaseOrder> {
+                    Text("Purchase Order")
+                }
+                entry<AppRoute.Settings> {
+                    Text("Settings")
+                }
+            }
+        )
     }
 
 }

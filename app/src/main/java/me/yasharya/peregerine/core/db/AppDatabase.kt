@@ -9,7 +9,6 @@ import me.yasharya.peregerine.feature_inventory.data.local.dao.ProductDao
 import me.yasharya.peregerine.feature_inventory.data.local.dao.StockLedgerDao
 import me.yasharya.peregerine.feature_inventory.data.local.entity.BatchEntity
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductEntity
-import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductInventorySummaryDto
 import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEntity
 
 @Database(

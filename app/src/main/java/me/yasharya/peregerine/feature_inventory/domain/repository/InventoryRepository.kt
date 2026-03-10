@@ -20,6 +20,11 @@ interface InventoryRepository {
     fun observePagedInventorySummary(activeOnly: Boolean = true): Flow<PagingData<ProductInventorySummary>>
     fun observePagedLowStockInventory(): Flow<PagingData<ProductInventorySummary>>
     fun observePagedOutOfStockInventory(): Flow<PagingData<ProductInventorySummary>>
+    fun observePagedNotStockedInventorySummary(): Flow<PagingData<ProductInventorySummary>>
+
+    fun observeTotalActiveProductCount(): Flow<Int>
+    fun observeLowStockCount(): Flow<Int>
+    fun observeOutOfStockCount(): Flow<Int>
 
     // Batch
     fun observeBatchesForProduct(productId: String): Flow<List<Batch>>

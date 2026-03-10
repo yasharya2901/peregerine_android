@@ -1,5 +1,6 @@
 package me.yasharya.peregerine.core.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,16 +25,20 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun StatCard (
+    modifier: Modifier = Modifier,
     label: String,
     count: Int,
     dotColor: Color,
-    modifier: Modifier = Modifier
+    selected: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier.height(90.dp),
+        onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
+        border = if (selected) BorderStroke(1.5.dp, dotColor) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(
@@ -57,7 +62,7 @@ fun StatCard (
             }
 
 
-            Text(text = count.toString(), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = dotColor)
+            Text(text = count.toString(), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = if (selected) dotColor else MaterialTheme.colorScheme.onSurface)
 
             Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
@@ -79,24 +84,26 @@ fun StatCardPreview() {
     ) {
         StatCard(
             label = "Total Products",
-            count = 120,
-            dotColor = Color.Green,
+            count = 7,
+            dotColor = Color(0xFF4CAF50),
+            selected = true,
             modifier = Modifier.size(120.dp)
         )
 
         StatCard(
             label = "Low Stock",
-            count = 30,
-            dotColor = Color.Yellow,
+            count = 3,
+            dotColor = Color(0xFFFF9800),
+            selected = false,
             modifier = Modifier.size(120.dp)
         )
 
         StatCard(
             label = "Out of Stock",
-            count = 12,
-            dotColor = Color.Red,
+            count = 1,
+            dotColor = Color(0xFFF44336),
+            selected = false,
             modifier = Modifier.size(120.dp)
         )
     }
-
 }

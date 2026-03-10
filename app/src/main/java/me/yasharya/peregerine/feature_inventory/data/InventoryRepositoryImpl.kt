@@ -92,6 +92,28 @@ class InventoryRepositoryImpl (
         }
     }
 
+    override fun observePagedNotStockedInventorySummary(): Flow<PagingData<ProductInventorySummary>> {
+        return Pager(config = PagingConfig(
+            pageSize = Constants.DEFAULT_PAGE_SIZE,
+            enablePlaceholders = false
+        ), pagingSourceFactory = {productDao.getPagedNotStockedInventorySummary()}
+        ).flow.map {pagingData ->
+            pagingData.map { it.toDomain() }
+        }
+    }
+
+    override fun observeTotalActiveProductCount(): Flow<Int> {
+        return productDao.observeTotalActiveProductCount()
+    }
+
+    override fun observeLowStockCount(): Flow<Int> {
+        return productDao.observeLowStockCount()
+    }
+
+    override fun observeOutOfStockCount(): Flow<Int> {
+        return productDao.observeOutOfStockCount()
+    }
+
     override fun observeBatchesForProduct(productId: String): Flow<List<Batch>> {
         return batchDao.observeBatchesForProduct(productId).map { batchEntities ->
             batchEntities.map { it.toDomain() }

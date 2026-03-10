@@ -1,3 +1,38 @@
 <resources>
     <string name="app_name">Peregerine</string>
+
+    <!-- Tab Labels -->
+    <string name="tab_inventory">Inventory</string>
+    <string name="tab_purchase_order">Purchase Order</string>
+    <string name="tab_settings">Settings"</string>
+
+    <!-- Inventory Screen -->
+    <string name="inventory_title">Inventory</string>
+    <string name="stat_total_products">Total Products</string>
+    <string name="stat_low_stock">Low Stock</string>
+    <string name="stat_out_of_stock">Out of Stock</string>
+
+    <!-- Filter Chip Labels -->
+    <string name="filter_all">All</string>
+    <string name="filter_low_stock">Low Stock</string>
+    <string name="filter_out_of_stock">Out of Stock</string>
+    <string name="filter_inactive">Inactive</string>
+    <string name="filter_not_stocked">Not Stocked</string>
+
+    <!-- Empty States -->
+    <string name="empty_all_title">No products yet</string>
+    <string name="empty_all_subtitle">Your shelf is bare. Tap + to add your first product.</string>
+
+    <string name="empty_low_stock_title">Nothing running low!</string>
+    <string name="empty_low_stock_subtitle">Every product is stocked up. Enjoy the peace while it lasts.</string>
+
+    <string name="empty_out_of_stock_title">All stocked up!</string>
+    <string name="empty_out_of_stock_subtitle">Zero products out of stock. Your shelves are fully loaded.</string>
+
+    <string name="empty_inactive_title">Everything\'s active</string>
+    <string name="empty_inactive_subtitle">No products have been deactivated. Nothing hiding here.</string>
+
+    <string name="empty_not_stocked_title">No unstocked products</string>
+    <string name="empty_not_stocked_subtitle">All products have been stocked at least once. Great job keeping track!</string>
+
 </resources>

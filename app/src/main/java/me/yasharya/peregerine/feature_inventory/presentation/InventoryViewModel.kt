@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.usecase.InventoryUseCases
@@ -37,10 +39,24 @@ class InventoryViewModel(
                 InventoryFilter.LOW_STOCK -> inventoryUseCases.observeLowStockProducts()
                 InventoryFilter.OUT_OF_STOCK -> inventoryUseCases.observeOutOfStockProducts()
                 InventoryFilter.INACTIVE -> inventoryUseCases.observeProductInventorySummary(activeOnly = false)
+                InventoryFilter.NOT_STOCKED -> inventoryUseCases.observeNotStockedProducts()
             }
         }
         .cachedIn(viewModelScope)
 
+    init {
+        inventoryUseCases.observeTotalActiveProductCount()
+            .onEach { count -> _uiState.update { it.copy(totalCount = count) } }
+            .launchIn(viewModelScope)
+
+        inventoryUseCases.observeLowStockCount()
+            .onEach { count -> _uiState.update { it.copy(lowStockCount = count) } }
+            .launchIn(viewModelScope)
+
+        inventoryUseCases.observeOutOfStockCount()
+            .onEach { count -> _uiState.update { it.copy(outOfStockCount = count) } }
+            .launchIn(viewModelScope)
+    }
     fun setFilter(filter: InventoryFilter) {
         _uiState.update { it.copy(filter = filter) }
     }

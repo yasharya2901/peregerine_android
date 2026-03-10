@@ -1,3 +1,14 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+
+# User-specific files
+copilot.data.migration.ask2agent.xml
+studiobot.xml
+
+# Generated files
+/modules/
+
+# Optional - uncomment if you don't want to share run configurations
+# runConfigurations.xml
+
