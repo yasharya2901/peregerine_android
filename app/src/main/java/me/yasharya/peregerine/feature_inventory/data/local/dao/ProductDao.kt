@@ -175,7 +175,7 @@ interface ProductDao {
     @Query("""
         SELECT 
             p.*,
-            NULL as totalQtyAvailable,
+            0.0 as totalQtyAvailable,
             0 as isLowStock,
             0 as isOutOfStock
         FROM products p
