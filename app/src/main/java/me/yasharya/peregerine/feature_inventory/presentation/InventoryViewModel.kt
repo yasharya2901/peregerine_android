@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.room.util.query
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +22,6 @@ import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryFilt
 import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryUiState
 
 
-//
 @OptIn(ExperimentalCoroutinesApi::class)
 class InventoryViewModel(
     private val inventoryUseCases: InventoryUseCases

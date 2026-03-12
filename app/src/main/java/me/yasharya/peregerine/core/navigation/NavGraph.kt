@@ -16,7 +16,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation3.runtime.entryProvider
-
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
@@ -25,7 +24,6 @@ import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
-import kotlin.collections.listOf
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
