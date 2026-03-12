@@ -5,6 +5,7 @@ data class InventoryUseCases(
     val searchProducts: SearchProducts,
     val observeProduct: ObserveProduct,
     val createProduct: CreateProduct,
+    val createProductWithOpeningStock: CreateProductWithOpeningStock,
     val activateProduct: ActivateProduct,
     val deactivateProduct: DeactivateProduct,
     val observeProductInventorySummary: ObserveProductInventorySummary,
@@ -22,5 +23,8 @@ data class InventoryUseCases(
     val observeTotalActiveProductCount: ObserveTotalActiveProductCount,
     val observeLowStockCount: ObserveLowStockCount,
     val observeOutOfStockCount: ObserveOutOfStockCount,
-    val observeNotStockedProducts: ObserveNotStockedProducts
-    )
+    val observeNotStockedProducts: ObserveNotStockedProducts,
+    val observeUnits: ObserveUnits,
+    val searchUnits: SearchUnits,
+    val insertUnit: InsertUnit,
+)

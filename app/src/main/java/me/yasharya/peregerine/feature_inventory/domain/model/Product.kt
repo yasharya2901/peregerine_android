@@ -11,6 +11,7 @@ data class Product (
     val defaultCostPrice: Money?,
     val defaultMRP: Money?,
     val lowStockThreshold: Double?,
+    val notes: String?,
     val isActive: Boolean,
     val createdAt: Long,
     val updatedAt: Long

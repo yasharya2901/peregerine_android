@@ -1,8 +1,5 @@
 package me.yasharya.peregerine.feature_inventory.presentation.model
 
-import me.yasharya.peregerine.feature_inventory.domain.model.Product
-
-
 enum class InventoryFilter {
     ALL, LOW_STOCK, OUT_OF_STOCK, INACTIVE, NOT_STOCKED
 }

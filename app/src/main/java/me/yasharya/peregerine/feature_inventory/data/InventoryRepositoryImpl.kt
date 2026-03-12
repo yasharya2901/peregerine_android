@@ -11,9 +11,12 @@ import me.yasharya.peregerine.core.db.AppDatabase
 import me.yasharya.peregerine.core.util.Constants
 import me.yasharya.peregerine.core.util.Ids
 import me.yasharya.peregerine.core.util.Time
+import me.yasharya.peregerine.feature_inventory.data.local.entity.BatchEntity
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toDomain
 import me.yasharya.peregerine.feature_inventory.data.local.mapper.toEntity
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
+import me.yasharya.peregerine.feature_inventory.domain.model.MeasureUnit
+import me.yasharya.peregerine.feature_inventory.domain.model.OpeningStock
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
@@ -27,6 +30,7 @@ class InventoryRepositoryImpl (
     private val productDao = db.productDao()
     private val ledgerDao = db.stockLedgerDao()
     private val batchDao = db.batchDao()
+    private val unitDao = db.unitDao()
 
     override fun observePagedProducts(query: String, active: Boolean, inactive: Boolean): Flow<PagingData<Product>> {
         return Pager(config = PagingConfig(
@@ -99,6 +103,49 @@ class InventoryRepositoryImpl (
         ), pagingSourceFactory = {productDao.getPagedNotStockedInventorySummary()}
         ).flow.map {pagingData ->
             pagingData.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun createProductWithOpeningStock(
+        product: Product,
+        openingStock: OpeningStock
+    ) {
+        db.withTransaction {
+            productDao.upsert(product.toEntity())
+
+            // create new batch
+            val batchId = Ids.newId()
+            val now = Time.nowEpochMillis()
+
+            batchDao.upsertBatch(
+                BatchEntity(
+                    id = batchId,
+                    productId = product.id,
+                    purchaseDate = now,
+                    mrp = openingStock.mrp,
+                    costPrice = openingStock.costPrice,
+                    sellingPrice = openingStock.sellingPrice,
+                    qtyOnHand = openingStock.qty,
+                    isActive = true,
+                    createdAt = now,
+                    updatedAt = now,
+                )
+            )
+
+            // insert ledger entry
+            ledgerDao.insert(
+                StockLedgerEntry(
+                    id = Ids.newId(),
+                    productId = product.id,
+                    batchId = batchId,
+                    type = StockChangeType.OPENING,
+                    deltaQty = openingStock.qty,
+                    referenceId = null,
+                    note = "Opening Stock",
+                    createdAt = now,
+                ).toEntity()
+            )
+
         }
     }
 
@@ -198,7 +245,9 @@ class InventoryRepositoryImpl (
         }
     }
 
+    override fun observeUnits(): Flow<List<MeasureUnit>> = unitDao.observeAll().map { list -> list.map { it.toDomain() } }
 
+    override fun searchUnits(query: String): Flow<List<MeasureUnit>> = unitDao.search(query).map { list -> list.map { it.toDomain() } }
 
-
+    override suspend fun insertUnit(unit: MeasureUnit) = unitDao.insert(unit.toEntity())
 }

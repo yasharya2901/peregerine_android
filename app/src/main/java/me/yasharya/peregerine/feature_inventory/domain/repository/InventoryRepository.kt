@@ -3,6 +3,8 @@ package me.yasharya.peregerine.feature_inventory.domain.repository
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
+import me.yasharya.peregerine.feature_inventory.domain.model.MeasureUnit
+import me.yasharya.peregerine.feature_inventory.domain.model.OpeningStock
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
@@ -21,7 +23,7 @@ interface InventoryRepository {
     fun observePagedLowStockInventory(): Flow<PagingData<ProductInventorySummary>>
     fun observePagedOutOfStockInventory(): Flow<PagingData<ProductInventorySummary>>
     fun observePagedNotStockedInventorySummary(): Flow<PagingData<ProductInventorySummary>>
-
+    suspend fun createProductWithOpeningStock(product: Product, openingStock: OpeningStock)
     fun observeTotalActiveProductCount(): Flow<Int>
     fun observeLowStockCount(): Flow<Int>
     fun observeOutOfStockCount(): Flow<Int>
@@ -46,5 +48,9 @@ interface InventoryRepository {
     suspend fun insertMultipleStockLedgerEntry(entries: List<StockLedgerEntry>)
 
     suspend fun adjustStockTransactional(productId: String, batchId: String, deltaQty: Double, type: StockChangeType, referenceId: String?, note: String?)
+
+    fun observeUnits(): Flow<List<MeasureUnit>>
+    fun searchUnits(query: String): Flow<List<MeasureUnit>>
+    suspend fun insertUnit(unit: MeasureUnit)
 
 }

@@ -2,15 +2,11 @@ package me.yasharya.peregerine.feature_inventory.data.local.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductEntity
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductInventorySummaryDto
-
 
 @Dao
 interface ProductDao {
@@ -42,7 +38,7 @@ interface ProductDao {
         SELECT * FROM products
         WHERE id = :productId
         LIMIT 1
-        """)
+    """)
     fun getProductById(productId: String): Flow<ProductEntity?>
 
     @Upsert
@@ -80,7 +76,6 @@ interface ProductDao {
         ) q ON p.id = q.productId
         WHERE p.isActive = :activeOnly
         ORDER BY p.name ASC
-        
     """)
     fun getPagedProductInventorySummary(activeOnly: Boolean): PagingSource<Int, ProductInventorySummaryDto>
 
@@ -170,7 +165,6 @@ interface ProductDao {
        AND COALESCE(q.totalQtyAvailable, 0) <= 0
     """)
     fun observeOutOfStockCount(): Flow<Int>
-
 
     @Query("""
         SELECT 

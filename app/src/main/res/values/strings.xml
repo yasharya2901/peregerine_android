@@ -35,4 +35,6 @@
     <string name="empty_not_stocked_title">No unstocked products</string>
     <string name="empty_not_stocked_subtitle">All products have been stocked at least once. Great job keeping track!</string>
 
+    <string name="empty_search_title">No results found</string>
+    <string name="empty_search_subtitle">Try a different name or barcode.</string>
 </resources>

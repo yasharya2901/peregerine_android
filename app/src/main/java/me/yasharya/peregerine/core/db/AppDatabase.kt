@@ -7,12 +7,14 @@ import me.yasharya.peregerine.core.db.typeconverters.Converters
 import me.yasharya.peregerine.feature_inventory.data.local.dao.BatchDao
 import me.yasharya.peregerine.feature_inventory.data.local.dao.ProductDao
 import me.yasharya.peregerine.feature_inventory.data.local.dao.StockLedgerDao
+import me.yasharya.peregerine.feature_inventory.data.local.dao.UnitDao
 import me.yasharya.peregerine.feature_inventory.data.local.entity.BatchEntity
 import me.yasharya.peregerine.feature_inventory.data.local.entity.ProductEntity
 import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEntity
+import me.yasharya.peregerine.feature_inventory.data.local.entity.UnitEntity
 
 @Database(
-    entities = [ProductEntity::class, StockLedgerEntity::class, BatchEntity::class],
+    entities = [ProductEntity::class, StockLedgerEntity::class, BatchEntity::class, UnitEntity::class],
     version = 1,
     exportSchema = true
 )
@@ -21,4 +23,5 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun stockLedgerDao(): StockLedgerDao
     abstract fun batchDao(): BatchDao
+    abstract fun unitDao(): UnitDao
 }

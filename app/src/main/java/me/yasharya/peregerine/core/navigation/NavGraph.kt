@@ -21,7 +21,9 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
+import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
 import kotlin.collections.listOf
 
@@ -80,7 +82,20 @@ fun NavGraph() {
                             initializer { InventoryViewModel(container.inventoryUseCases) }
                         }
                     )
-                    InventoryListScreen(viewModel)
+                    InventoryListScreen(viewModel = viewModel, onAddProduct = {backStack.add(AppRoute.AddProduct)})
+                }
+
+                entry<AppRoute.AddProduct> {
+                    val viewModel: AddProductViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer { AddProductViewModel(container.inventoryUseCases) }
+                        }
+                    )
+
+                    AddProductScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()}
+                    )
                 }
                 entry<AppRoute.PurchaseOrder> {
                     Text("Purchase Order")
