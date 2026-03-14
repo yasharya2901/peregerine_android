@@ -247,6 +247,14 @@ class InventoryRepositoryImpl (
             val batch = batchDao.getBatchById(batchId)
                 ?: throw IllegalStateException("Batch $batchId not found")
 
+            if (deltaQty > 0) {
+                val product = productDao.getProductByIdOnce(productId)
+                    ?: throw IllegalStateException("Product $productId not found")
+                if (!product.isActive) {
+                    throw IllegalStateException("Cannot add stock to an inactive product. Activate the product first.")
+                }
+            }
+
             val newQty = batch.qtyOnHand + deltaQty
             if (newQty < 0) throw IllegalStateException("Stock cannot go negative")
 

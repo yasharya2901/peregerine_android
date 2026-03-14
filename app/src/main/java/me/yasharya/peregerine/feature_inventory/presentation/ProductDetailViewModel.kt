@@ -13,7 +13,6 @@ import me.yasharya.peregerine.core.util.Ids
 import me.yasharya.peregerine.core.util.Time
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
-import me.yasharya.peregerine.feature_inventory.domain.repository.InventoryRepository
 import me.yasharya.peregerine.feature_inventory.domain.usecase.InventoryUseCases
 import me.yasharya.peregerine.feature_inventory.presentation.model.AddBatchDialogState
 import me.yasharya.peregerine.feature_inventory.presentation.model.AdjustStockDialogState
@@ -48,10 +47,18 @@ class ProductDetailViewModel(private val productId: String, private val inventor
 
 
     fun openAdjustStockDialog() {
+        val currentState = _uiState.value
+        val activeBatches = currentState.batches.filter { it.isActive }
+        val isProductActive = currentState.product?.isActive ?: true
+
+        val autoSelectedBatch = if (activeBatches.size == 1) activeBatches.first() else null
         _uiState.update {
             it.copy(
                 showAdjustStockDialog = true,
-                adjustStockDialog = AdjustStockDialogState()
+                adjustStockDialog = AdjustStockDialogState(
+                    selectedBatch = autoSelectedBatch,
+                    isAdding = isProductActive
+                )
             )
         }
     }

@@ -1,6 +1,7 @@
 package me.yasharya.peregerine.feature_inventory.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -811,6 +812,7 @@ private fun AdjustStockDialog(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .border(1.dp, borderColor, RoundedCornerShape(10.dp))
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(bgColor)
                                     .clickable { onSelectBatch(batch) }
@@ -871,12 +873,14 @@ private fun AdjustStockDialog(
                             label = "+ Add",
                             selected = dialogState.isAdding,
                             enabled = isProductActive,
+                            modifier = Modifier.height(56.dp), // Same as OutlinedTextField
                             onClick = { if (isProductActive) onModeChange(true) }
                         )
                         ModeChip(
                             label = "− Remove",
                             selected = !dialogState.isAdding,
                             enabled = true,
+                            modifier = Modifier.height(56.dp),
                             onClick = { onModeChange(false) }
                         )
                     }
@@ -971,7 +975,7 @@ private fun AdjustStockDialog(
 }
 
 @Composable
-private fun ModeChip(label: String, selected: Boolean, enabled: Boolean, onClick: () -> Unit) {
+private fun ModeChip(label: String, selected: Boolean, enabled: Boolean, modifier: Modifier = Modifier,onClick: () -> Unit) {
     val bg = when {
         selected -> MaterialTheme.colorScheme.primary
         !enabled -> MaterialTheme.colorScheme.surfaceVariant
@@ -985,17 +989,22 @@ private fun ModeChip(label: String, selected: Boolean, enabled: Boolean, onClick
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = bg,
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .clickable(enabled = enabled, onClick = onClick)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = textColor,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxHeight()
+        ){
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = textColor,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+        }
     }
 }
 
