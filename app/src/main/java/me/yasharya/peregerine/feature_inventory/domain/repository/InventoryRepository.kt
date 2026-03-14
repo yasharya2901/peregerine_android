@@ -3,6 +3,8 @@ package me.yasharya.peregerine.feature_inventory.domain.repository
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
+import me.yasharya.peregerine.feature_inventory.domain.model.MeasureUnit
+import me.yasharya.peregerine.feature_inventory.domain.model.OpeningStock
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
@@ -20,6 +22,11 @@ interface InventoryRepository {
     fun observePagedInventorySummary(activeOnly: Boolean = true): Flow<PagingData<ProductInventorySummary>>
     fun observePagedLowStockInventory(): Flow<PagingData<ProductInventorySummary>>
     fun observePagedOutOfStockInventory(): Flow<PagingData<ProductInventorySummary>>
+    fun observePagedNotStockedInventorySummary(): Flow<PagingData<ProductInventorySummary>>
+    suspend fun createProductWithOpeningStock(product: Product, openingStock: OpeningStock)
+    fun observeTotalActiveProductCount(): Flow<Int>
+    fun observeLowStockCount(): Flow<Int>
+    fun observeOutOfStockCount(): Flow<Int>
 
     // Batch
     fun observeBatchesForProduct(productId: String): Flow<List<Batch>>
@@ -29,6 +36,9 @@ interface InventoryRepository {
     suspend fun upsertBatch(batch: Batch)
     suspend fun deactivateBatch(batchId: String)
     suspend fun activateBatch(batchId: String)
+
+    suspend fun addBatchTransactional(batch: Batch)
+
 
     // Stock Ledger
     fun observeStockLedgerForProduct(
@@ -41,5 +51,9 @@ interface InventoryRepository {
     suspend fun insertMultipleStockLedgerEntry(entries: List<StockLedgerEntry>)
 
     suspend fun adjustStockTransactional(productId: String, batchId: String, deltaQty: Double, type: StockChangeType, referenceId: String?, note: String?)
+    fun observeRecentStockLedgerForProduct(productId: String, limit: Int): Flow<List<StockLedgerEntry>>
+    fun observeUnits(): Flow<List<MeasureUnit>>
+    fun searchUnits(query: String): Flow<List<MeasureUnit>>
+    suspend fun insertUnit(unit: MeasureUnit)
 
 }

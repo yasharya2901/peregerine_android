@@ -28,6 +28,7 @@ data class BatchEntity (
     val mrp: Long,
     val costPrice: Long,
     val sellingPrice: Long,
+    val purchaseQty: Double,
     val qtyOnHand: Double,
     val isActive: Boolean,
     val createdAt: Long,

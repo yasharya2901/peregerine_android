@@ -1,89 +1,79 @@
 package me.yasharya.peregerine.feature_inventory.presentation
 
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import kotlinx.coroutines.flow.MutableStateFlow
-//import kotlinx.coroutines.flow.StateFlow
-//import kotlinx.coroutines.flow.combine
-//import kotlinx.coroutines.launch
-//import me.yasharya.peregerine.core.util.Ids
-//import me.yasharya.peregerine.core.util.Time
-//import me.yasharya.peregerine.feature_inventory.domain.model.Product
-//import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
-//import me.yasharya.peregerine.feature_inventory.domain.usecase.AdjustStock
-//import me.yasharya.peregerine.feature_inventory.domain.usecase.CreateProduct
-//import me.yasharya.peregerine.feature_inventory.domain.usecase.DeactivateProduct
-//import me.yasharya.peregerine.feature_inventory.domain.usecase.GetAllProducts
-//import me.yasharya.peregerine.feature_inventory.domain.usecase.ObserveProduct
-//import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryUiState
-//
-//class InventoryViewModel(
-//    private val createProduct: CreateProduct,
-//
-//    private val observeProduct: ObserveProduct
-//) : ViewModel() {
-//    private val query = MutableStateFlow("")
-//    private val activeOnly = MutableStateFlow(true)
-//
-//    // 1. Removed the entire broken 'uiState' block that caused the crash.
-//
-//    private val _state = MutableStateFlow(InventoryUiState())
-//    val state: StateFlow<InventoryUiState> = _state
-//
-//    init {
-//        observe()
-//    }
-//
-//    private fun observe() {
-//        viewModelScope.launch {
-//            combine(query, activeOnly) { q, act -> q to act }.collect { (q, act) ->
-//                val flow = if (q.isBlank()) getAllProducts(act) else searchProducts(q, act)
-//                flow.collect { products ->
-//                    _state.value = _state.value.copy(query = q, products = products, showActiveOnly = act)
-//                }
-//            }
-//        }
-//    }
-//
-//    fun setQuery(q: String) { query.value = q }
-//
-//    // 2. Fixed boolean logic: Assign the inverted value back to the state
-//    fun toggleActiveOnly() {
-//        activeOnly.value = !activeOnly.value
-//    }
-//
-//    fun createSampleProduct() {
-//        viewModelScope.launch {
-//            val now = Time.nowEpochMillis()
-//            val p = Product(
-//                id = Ids.newId(),
-//                name = "Sample Product",
-//                barcode = null,
-//                sellingPrice = 1000,
-//                costPrice = null,
-//                unit = "pcs",
-//                stockQty = 0.0,
-//                lowStockThreshold = 4.0,
-//                notes = null,
-//                isActive = true,
-//                createdAt = now,
-//                updatedAt = now
-//            )
-//            createProduct(p)
-//        }
-//    }
-//
-//    fun adjust(productId: String, delta: Double, note: String?) {
-//        viewModelScope.launch {
-//            val type = if (delta >= 0) StockChangeType.PURCHASE_RECEIPT else StockChangeType.ADJUSTMENT
-//            adjustStock(productId, delta, type, note)
-//        }
-//    }
-//
-//    fun deactivate(productId: String) {
-//        viewModelScope.launch {
-//            // 3. Fixed StackOverflowError: call the UseCase, not the function itself
-//            deactivateProduct(productId)
-//        }
-//    }
-//}
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import me.yasharya.peregerine.feature_inventory.domain.model.Product
+import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
+import me.yasharya.peregerine.feature_inventory.domain.usecase.InventoryUseCases
+import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryFilter
+import me.yasharya.peregerine.feature_inventory.presentation.model.InventoryUiState
+
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class InventoryViewModel(
+    private val inventoryUseCases: InventoryUseCases
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(InventoryUiState())
+    val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
+
+    val pagedProducts : Flow<PagingData<ProductInventorySummary>> = _uiState
+        .map { it.filter to it.searchQuery }
+        .distinctUntilChanged()
+        .flatMapLatest { (filter, query) ->
+            when(filter) {
+                InventoryFilter.ALL -> inventoryUseCases.observeProductInventorySummary(activeOnly = true)
+                InventoryFilter.LOW_STOCK -> inventoryUseCases.observeLowStockProducts()
+                InventoryFilter.OUT_OF_STOCK -> inventoryUseCases.observeOutOfStockProducts()
+                InventoryFilter.INACTIVE -> inventoryUseCases.observeProductInventorySummary(activeOnly = false)
+                InventoryFilter.NOT_STOCKED -> inventoryUseCases.observeNotStockedProducts()
+            }
+        }
+        .cachedIn(viewModelScope)
+
+    val searchResults: Flow<PagingData<Product>> = _uiState
+        .map{ it.searchQuery }
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            inventoryUseCases.searchProducts(query)
+        }
+        .cachedIn(viewModelScope)
+
+    init {
+        inventoryUseCases.observeTotalActiveProductCount()
+            .onEach { count -> _uiState.update { it.copy(totalCount = count) } }
+            .launchIn(viewModelScope)
+
+        inventoryUseCases.observeLowStockCount()
+            .onEach { count -> _uiState.update { it.copy(lowStockCount = count) } }
+            .launchIn(viewModelScope)
+
+        inventoryUseCases.observeOutOfStockCount()
+            .onEach { count -> _uiState.update { it.copy(outOfStockCount = count) } }
+            .launchIn(viewModelScope)
+    }
+    fun setFilter(filter: InventoryFilter) {
+        _uiState.update { it.copy(filter = filter) }
+    }
+
+    fun setSearchQuery(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+    }
+
+    fun setSearchBarVisibility(visibility: Boolean) {
+        _uiState.update {it.copy(isSearchBarVisible = visibility)}
+    }
+}

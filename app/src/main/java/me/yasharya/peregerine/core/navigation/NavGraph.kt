@@ -1,30 +1,162 @@
 package me.yasharya.peregerine.core.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
-import me.yasharya.peregerine.feature_inventory.presentation.TestInventoryViewModel
-import me.yasharya.peregerine.feature_inventory.presentation.screens.TestInventoryScreen
+import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.EditProductViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.EditProductScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.ProductDetailScreen
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun NavGraph() {
-    val navController = rememberNavController()
     val context = LocalContext.current
     val container = (context.applicationContext as App).container
 
-    // Test ViewModel with all use cases
-    val testVm = TestInventoryViewModel(
-        useCases = container.inventoryUseCases
-    )
+    val backStack = rememberNavBackStack(AppRoute.Inventory)
+    val currentRoute = backStack.last() as? AppRoute
 
-    NavHost(navController = navController, startDestination = Routes.INVENTORY_LIST) {
-        composable(Routes.INVENTORY_LIST) {
-            TestInventoryScreen(testVm)
+    val showTabs = currentRoute?.isRoot() == true
+
+    Scaffold(
+        bottomBar = {
+            // Rest of the pages will open without tabs
+            if (showTabs){
+                NavigationBar {
+                    BottomNavItem.all.forEach { item ->
+                        NavigationBarItem(
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                val existingRoute = backStack.firstOrNull{it == item.route}
+                                if (existingRoute != null) {
+                                    backStack.remove(existingRoute)
+                                    backStack.add(existingRoute)
+                                } else {
+                                    backStack.add(item.route)
+                                }
+                            },
+                            icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
+                            label = { Text(stringResource(item.labelRes))}
+                        )
+                    }
+                }
+            }
         }
+    ) { innerPadding ->
+        NavDisplay(
+            backStack = backStack,
+            onBack = {
+                if (backStack.size > 1){
+                    backStack.removeLastOrNull()
+                }
+            },
+            modifier = Modifier.padding(innerPadding),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<AppRoute.Inventory> {
+                    val viewModel: InventoryViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer { InventoryViewModel(container.inventoryUseCases) }
+                        }
+                    )
+                    InventoryListScreen(
+                        viewModel = viewModel,
+                        onAddProduct = {backStack.add(AppRoute.AddProduct)},
+                        onProductClick = {productId ->
+                            backStack.add(AppRoute.ProductDetail(productId))
+                        }
+                    )
+                }
+
+                entry<AppRoute.AddProduct> {
+                    val viewModel: AddProductViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer { AddProductViewModel(container.inventoryUseCases) }
+                        }
+                    )
+
+                    AddProductScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()},
+                        onNavigateToProductDetail = {productId ->
+                            backStack.removeLastOrNull()
+                            backStack.add(AppRoute.ProductDetail(productId))
+                        }
+                    )
+                }
+                entry<AppRoute.ProductDetail> {route ->
+                    val viewModel: ProductDetailViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                ProductDetailViewModel(
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+
+                    ProductDetailScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()},
+                        onEditProduct = { productId ->
+                            backStack.add(AppRoute.EditProduct(productId))
+                        },
+                        onFullLedger = { _ ->
+                            // TODO: Implement Full Ledger
+                        }
+                    )
+                }
+
+                entry<AppRoute.EditProduct> {route ->
+                    val viewModel: EditProductViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                EditProductViewModel(
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+                    EditProductScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()}
+                    )
+                }
+                entry<AppRoute.PurchaseOrder> {
+                    Text("Purchase Order")
+                }
+                entry<AppRoute.Settings> {
+                    Text("Settings")
+                }
+            }
+        )
     }
+
 }

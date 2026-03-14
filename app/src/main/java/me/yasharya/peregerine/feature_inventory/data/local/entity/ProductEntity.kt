@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-
 @Entity(
     tableName = "products",
     indices = [
@@ -22,6 +21,7 @@ data class ProductEntity (
     val defaultCostPrice: Long?,
     val defaultMRP: Long?,
     val lowStockThreshold: Double?,
+    val notes: String?,
     val isActive: Boolean,
     val createdAt: Long,
     val updatedAt: Long
