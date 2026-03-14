@@ -79,15 +79,15 @@ private val cardShape = RoundedCornerShape(16.dp)
 @Composable
 fun AddProductScreen(
     viewModel: AddProductViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToProductDetail: (productId: String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val unitSearchQuery by viewModel.unitSearchQuery.collectAsStateWithLifecycle()
     val filteredUnits by viewModel.filteredUnits.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.isSaved) {
-        // TODO: On Save, navigate to product detail page instead of going back
-        if (uiState.isSaved) onBack()
+    LaunchedEffect(uiState.savedProductId) {
+        uiState.savedProductId?.let{onNavigateToProductDetail(it)}
     }
 
     Scaffold(
@@ -158,7 +158,7 @@ fun AddProductScreen(
         ) {
             Spacer(Modifier.height(4.dp))
 
-            // ── Basic Info ────────────────────────────────────────────────────
+            // Basic Info
             SectionCard(title = "Basic Info") {
                 AppTextField(
                     value = uiState.name,
@@ -200,7 +200,7 @@ fun AddProductScreen(
                 )
             }
 
-            // ── Measurement Unit ──────────────────────────────────────────────
+            // Measurement Unit
             SectionCard(title = "Measurement Unit") {
                 UnitSelectorRow(
                     selectedUnit = uiState.selectedUnit,
@@ -209,7 +209,7 @@ fun AddProductScreen(
                 )
             }
 
-            // ── Pricing Details ───────────────────────────────────────────────
+            // Pricing Details
             SectionCard(title = "Pricing Details") {
                 Text(
                     text = "Used as defaults when creating new batches",
@@ -242,7 +242,7 @@ fun AddProductScreen(
                 }
             }
 
-            // ── Stock Settings ────────────────────────────────────────────────
+            // Stock Settings
             SectionCard(title = "Stock Settings") {
                 AppTextField(
                     value = uiState.lowStockThreshold,
@@ -274,7 +274,7 @@ fun AddProductScreen(
                 )
             }
 
-            // ── Opening Stock ─────────────────────────────────────────────────
+            // Opening Stock
             SectionCard(title = "Opening Stock") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -374,7 +374,7 @@ fun AddProductScreen(
         }
     }
 
-    // ── Unit Picker Dialog ────────────────────────────────────────────────────
+    // Unit Picker Dialog
     if (uiState.showUnitPicker) {
         UnitPickerDialog(
             query = unitSearchQuery,
@@ -388,7 +388,7 @@ fun AddProductScreen(
     }
 }
 
-// ── Section Card ──────────────────────────────────────────────────────────────
+// Section Card
 
 @Composable
 private fun SectionCard(
@@ -428,7 +428,7 @@ private fun SectionCard(
     }
 }
 
-// ── Text Fields ───────────────────────────────────────────────────────────────
+// Text Fields
 
 @Composable
 private fun AppTextField(
@@ -511,7 +511,7 @@ private fun PriceInputField(
     )
 }
 
-// ── Unit Selector ─────────────────────────────────────────────────────────────
+// Unit Selector
 
 @Composable
 private fun UnitSelectorRow(
@@ -574,7 +574,7 @@ private fun UnitSelectorRow(
     }
 }
 
-// ── Unit Picker Dialog ────────────────────────────────────────────────────────
+// Unit Picker Dialog
 
 @Composable
 private fun UnitPickerDialog(

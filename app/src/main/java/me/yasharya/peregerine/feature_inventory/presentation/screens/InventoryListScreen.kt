@@ -33,9 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -90,7 +88,7 @@ private fun emptyStateResFor(filter: InventoryFilter) = when (filter) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit) {
+fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit, onProductClick: (productId: String) -> Unit) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pagedProducts: LazyPagingItems<ProductInventorySummary> = viewModel.pagedProducts.collectAsLazyPagingItems()
 
@@ -103,7 +101,7 @@ fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit)
         else
             pagedProducts.loadState.refresh is LoadState.NotLoading && pagedProducts.itemCount == 0
 
-    var isSearchBarVisible by remember { mutableStateOf(false) }
+    val isSearchBarVisible = uiState.isSearchBarVisible
     val focusRequester = remember { FocusRequester() }
 
     Column(
@@ -115,14 +113,14 @@ fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit)
             actions = {
                 if (!isSearchBarVisible) {
                     IconButton(onClick = {
-                        isSearchBarVisible = true
+                        viewModel.setSearchBarVisibility(true)
                     }) {
                         Icon(Icons.Outlined.Search, contentDescription = "Search")
                     }
                 } else {
                     IconButton(
                         onClick = {
-                            isSearchBarVisible = false
+                            viewModel.setSearchBarVisibility(false)
                             viewModel.setSearchQuery("")
                         }
                     ) {
@@ -270,7 +268,7 @@ fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit)
                             if (product != null) {
                                 SearchProductCard(
                                     product = product,
-                                    onClick = { /* TODO: navigate to product detail */ }
+                                    onClick = {onProductClick(product.id) }
                                 )
                             }
                         }
@@ -295,7 +293,8 @@ fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit)
                                     item = item,
                                     onAddToPO = {
                                         // TODO: Implement Add to PO
-                                    }
+                                    },
+                                    onClick = {onProductClick(item.product.id)}
                                 )
                             }
                         }

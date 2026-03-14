@@ -41,6 +41,13 @@ interface ProductDao {
     """)
     fun getProductById(productId: String): Flow<ProductEntity?>
 
+    @Query("""
+        SELECT * FROM products
+        WHERE id = :productId
+        LIMIT 1
+    """)
+    suspend fun getProductByIdOnce(productId: String): ProductEntity? // For transaction
+
     @Upsert
     suspend fun upsert(product: ProductEntity)
 

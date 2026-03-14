@@ -142,8 +142,9 @@ class AddProductViewModel(
         viewModelScope.launch {
             try {
                 val now = Time.nowEpochMillis()
+                val productId = Ids.newId()
                 val product = Product(
-                    id = Ids.newId(),
+                    id = productId,
                     name = state.name.trim(),
                     barcode = state.barcode.trim().ifEmpty { null },
                     unit = state.selectedUnit!!.name,
@@ -165,7 +166,7 @@ class AddProductViewModel(
                 } else {
                     inventoryUseCases.createProduct(product)
                 }
-                _uiState.update { it.copy(isLoading = false, isSaved = true) }
+                _uiState.update { it.copy(isLoading = false, savedProductId = productId) }
             } catch (e: Exception) {
                 // TODO: Handle for unknown error
                 _uiState.update { it.copy(isLoading = false) }

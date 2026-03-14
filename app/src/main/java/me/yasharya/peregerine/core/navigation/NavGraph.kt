@@ -21,9 +21,13 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
 import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.EditProductViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.EditProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.ProductDetailScreen
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -80,7 +84,13 @@ fun NavGraph() {
                             initializer { InventoryViewModel(container.inventoryUseCases) }
                         }
                     )
-                    InventoryListScreen(viewModel = viewModel, onAddProduct = {backStack.add(AppRoute.AddProduct)})
+                    InventoryListScreen(
+                        viewModel = viewModel,
+                        onAddProduct = {backStack.add(AppRoute.AddProduct)},
+                        onProductClick = {productId ->
+                            backStack.add(AppRoute.ProductDetail(productId))
+                        }
+                    )
                 }
 
                 entry<AppRoute.AddProduct> {
@@ -91,6 +101,50 @@ fun NavGraph() {
                     )
 
                     AddProductScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()},
+                        onNavigateToProductDetail = {productId ->
+                            backStack.removeLastOrNull()
+                            backStack.add(AppRoute.ProductDetail(productId))
+                        }
+                    )
+                }
+                entry<AppRoute.ProductDetail> {route ->
+                    val viewModel: ProductDetailViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                ProductDetailViewModel(
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+
+                    ProductDetailScreen(
+                        viewModel = viewModel,
+                        onBack = {backStack.removeLastOrNull()},
+                        onEditProduct = { productId ->
+                            backStack.add(AppRoute.EditProduct(productId))
+                        },
+                        onFullLedger = { _ ->
+                            // TODO: Implement Full Ledger
+                        }
+                    )
+                }
+
+                entry<AppRoute.EditProduct> {route ->
+                    val viewModel: EditProductViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                EditProductViewModel(
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+                    EditProductScreen(
                         viewModel = viewModel,
                         onBack = {backStack.removeLastOrNull()}
                     )

@@ -125,6 +125,7 @@ class InventoryRepositoryImpl (
                     mrp = openingStock.mrp,
                     costPrice = openingStock.costPrice,
                     sellingPrice = openingStock.sellingPrice,
+                    purchaseQty = openingStock.qty,
                     qtyOnHand = openingStock.qty,
                     isActive = true,
                     createdAt = now,
@@ -188,6 +189,32 @@ class InventoryRepositoryImpl (
         return batchDao.changeActiveStatusBatch(batchId, true, Time.nowEpochMillis())
     }
 
+    override suspend fun addBatchTransactional(batch: Batch) {
+        db.withTransaction {
+            val product = productDao.getProductByIdOnce(batch.productId)
+                ?: throw IllegalStateException("Product Not Found")
+
+            if (!product.isActive) {
+                throw IllegalStateException("Cannot add stock to an inactive product. Activate the product first.")
+            }
+
+            batchDao.upsertBatch(batch.toEntity())
+
+            ledgerDao.insert(
+                StockLedgerEntry(
+                    id = Ids.newId(),
+                    productId = batch.productId,
+                    batchId = batch.id,
+                    type = StockChangeType.PURCHASE_RECEIPT,
+                    deltaQty = batch.purchaseQty,
+                    referenceId = null,
+                    note = null,
+                    createdAt = Time.nowEpochMillis()
+                ).toEntity()
+            )
+        }
+    }
+
     override fun observeStockLedgerForProduct(productId: String): Flow<PagingData<StockLedgerEntry>> {
         return Pager(config = PagingConfig(pageSize = Constants.DEFAULT_PAGE_SIZE, enablePlaceholders = false), pagingSourceFactory = {ledgerDao.pagingSourceByProduct(productId)}).flow.map { stockledgers ->
             stockledgers.map {it.toDomain()}
@@ -242,6 +269,15 @@ class InventoryRepositoryImpl (
                     createdAt = Time.nowEpochMillis()
                 ).toEntity()
             )
+        }
+    }
+
+    override fun observeRecentStockLedgerForProduct(
+        productId: String,
+        limit: Int
+    ): Flow<List<StockLedgerEntry>> {
+        return ledgerDao.getRecentByProduct(productId, limit).map {list ->
+            list.map { it.toDomain() }
         }
     }
 

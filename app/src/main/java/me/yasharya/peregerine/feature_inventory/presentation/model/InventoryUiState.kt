@@ -8,5 +8,6 @@ data class InventoryUiState(
     val totalCount: Int = 0,
     val lowStockCount: Int = 0,
     val outOfStockCount: Int = 0,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val isSearchBarVisible: Boolean = false
 )

@@ -25,7 +25,7 @@ data class AddProductUiState (
     val showUnitPicker: Boolean = false,
 
     val isLoading: Boolean = false,
-    val isSaved: Boolean = false,
+    val savedProductId: String? = null,
 
     val nameError: String? = null,
     val unitError: String? = null,
@@ -34,3 +34,9 @@ data class AddProductUiState (
     val openingCostPriceError: String? = null,
     val openingSellingPriceError: String? = null,
 )
+
+val ProductDetailUiState.totalStock: Double
+    get() = batches.filter { it.isActive }.sumOf { it.qtyOnHand }
+
+val ProductDetailUiState.activeBatchCount: Int
+    get() = batches.count{it.isActive}

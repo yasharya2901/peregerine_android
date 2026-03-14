@@ -27,4 +27,6 @@ data class InventoryUseCases(
     val observeUnits: ObserveUnits,
     val searchUnits: SearchUnits,
     val insertUnit: InsertUnit,
+    val addBatch: AddBatch,
+    val observeRecentStockLedgerForProduct: ObserveRecentStockLedgerForProduct
 )

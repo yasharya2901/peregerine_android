@@ -37,6 +37,9 @@ interface InventoryRepository {
     suspend fun deactivateBatch(batchId: String)
     suspend fun activateBatch(batchId: String)
 
+    suspend fun addBatchTransactional(batch: Batch)
+
+
     // Stock Ledger
     fun observeStockLedgerForProduct(
         productId: String
@@ -48,7 +51,7 @@ interface InventoryRepository {
     suspend fun insertMultipleStockLedgerEntry(entries: List<StockLedgerEntry>)
 
     suspend fun adjustStockTransactional(productId: String, batchId: String, deltaQty: Double, type: StockChangeType, referenceId: String?, note: String?)
-
+    fun observeRecentStockLedgerForProduct(productId: String, limit: Int): Flow<List<StockLedgerEntry>>
     fun observeUnits(): Flow<List<MeasureUnit>>
     fun searchUnits(query: String): Flow<List<MeasureUnit>>
     suspend fun insertUnit(unit: MeasureUnit)

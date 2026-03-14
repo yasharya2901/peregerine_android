@@ -72,4 +72,8 @@ class InventoryViewModel(
     fun setSearchQuery(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
     }
+
+    fun setSearchBarVisibility(visibility: Boolean) {
+        _uiState.update {it.copy(isSearchBarVisible = visibility)}
+    }
 }

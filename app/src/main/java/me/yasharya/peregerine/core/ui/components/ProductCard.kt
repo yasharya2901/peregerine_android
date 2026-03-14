@@ -25,7 +25,8 @@ import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySum
 fun ProductCard(
     modifier: Modifier = Modifier,
     item: ProductInventorySummary,
-    onAddToPO: ((ProductInventorySummary) -> Unit)? = null
+    onAddToPO: ((ProductInventorySummary) -> Unit)? = null,
+    onClick: () -> Unit = {}
 ){
     val stockColor = when {
         item.isOutOfStock -> MaterialTheme.colorScheme.error
@@ -49,7 +50,8 @@ fun ProductCard(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
