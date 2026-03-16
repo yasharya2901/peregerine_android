@@ -38,6 +38,11 @@ interface InventoryRepository {
     suspend fun activateBatch(batchId: String)
 
     suspend fun addBatchTransactional(batch: Batch)
+    fun observePagedBatchesForProduct(
+        productId: String,
+        showActive: Boolean = true,
+        showInactive: Boolean = true,
+    ): Flow<PagingData<Batch>>
 
 
     // Stock Ledger

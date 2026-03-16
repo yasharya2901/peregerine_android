@@ -215,6 +215,16 @@ class InventoryRepositoryImpl (
         }
     }
 
+    override fun observePagedBatchesForProduct(
+        productId: String,
+        showActive: Boolean,
+        showInactive: Boolean
+    ): Flow<PagingData<Batch>> =
+        Pager(
+            config = PagingConfig(pageSize = Constants.DEFAULT_PAGE_SIZE, enablePlaceholders = false),
+            pagingSourceFactory = { batchDao.getPagedBatchesForProduct(productId, showActive, showInactive) }
+        ).flow.map { pagingData -> pagingData.map {it.toDomain()} }
+
     override fun observeStockLedgerForProduct(productId: String): Flow<PagingData<StockLedgerEntry>> {
         return Pager(config = PagingConfig(pageSize = Constants.DEFAULT_PAGE_SIZE, enablePlaceholders = false), pagingSourceFactory = {ledgerDao.pagingSourceByProduct(productId)}).flow.map { stockledgers ->
             stockledgers.map {it.toDomain()}
@@ -261,6 +271,7 @@ class InventoryRepositoryImpl (
             batchDao.upsertBatch(
                 batch.copy(
                     qtyOnHand = newQty,
+                    isActive = newQty > 0,
                     updatedAt = Time.nowEpochMillis()
                 )
             )

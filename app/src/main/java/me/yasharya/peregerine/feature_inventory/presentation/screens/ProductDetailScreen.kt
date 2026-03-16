@@ -22,9 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
@@ -43,7 +41,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -71,6 +68,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import me.yasharya.peregerine.core.ui.components.BatchCard
+import me.yasharya.peregerine.core.ui.components.SectionCard
+import me.yasharya.peregerine.core.ui.components.TodayOrEarlierDates
+import me.yasharya.peregerine.core.util.formatQty
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
@@ -89,6 +90,7 @@ private val fieldShape = RoundedCornerShape(12.dp)
 private val dateFormatter = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
 private val shortDateFormatter = SimpleDateFormat("d MMM", Locale.getDefault())
 
+private const val MAX_BATCHES_SHOWN = 5
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
@@ -96,6 +98,8 @@ fun ProductDetailScreen(
     onBack: () -> Unit,
     onEditProduct: (productId: String) -> Unit,
     onFullLedger: (productId: String) -> Unit,
+    onViewAllBatches: (productId: String) -> Unit,
+    onBatchClick: (batchId: String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -178,7 +182,7 @@ fun ProductDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 32.dp)
         ) {
-            // ── Stock Header ──────────────────────────────────────────────────
+            // Stock Header
             StockHeaderCard(
                 totalStock = uiState.totalStock,
                 unit = product.unit,
@@ -187,7 +191,7 @@ fun ProductDetailScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
 
-            // ── Action Buttons ────────────────────────────────────────────────
+            // Action Buttons
             val isActive = product.isActive
             Row(
                 modifier = Modifier
@@ -218,7 +222,7 @@ fun ProductDetailScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Pricing ───────────────────────────────────────────────────────
+            // Pricing
             if (product.defaultMRP != null || product.defaultCostPrice != null || product.defaultSellingPrice != null) {
                 SectionCard(
                     title = "Pricing",
@@ -236,13 +240,33 @@ fun ProductDetailScreen(
                 Spacer(Modifier.height(16.dp))
             }
 
-            // ── Batches ───────────────────────────────────────────────────────
-            Text(
-                text = "Batches (${uiState.activeBatchCount} active)",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-            )
+            // Batches
+            val batchesToShow = uiState.batches.take(MAX_BATCHES_SHOWN)
+            val hasMoreBatches = uiState.batches.size > MAX_BATCHES_SHOWN
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Batches (${uiState.activeBatchCount} active)",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                if (hasMoreBatches) {
+                    TextButton(onClick = {onViewAllBatches(product.id)}) {
+                        Text(
+                            text = "View All (${uiState.batches.size})",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
+            }
+
             if (uiState.batches.isEmpty()) {
                 Text(
                     text = "No batches yet. Use \"Add Batch\" to receive stock.",
@@ -255,15 +279,19 @@ fun ProductDetailScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    uiState.batches.forEach { batch ->
-                        BatchCard(batch = batch, unit = product.unit)
+                    batchesToShow.forEach { batch ->
+                        BatchCard(
+                            batch = batch,
+                            unit = product.unit,
+                            onClick = { onBatchClick(batch.id) }
+                        )
                     }
                 }
             }
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Recent Activity ───────────────────────────────────────────────
+            // Recent Activity
             if (uiState.recentLedger.isNotEmpty()) {
                 Text(
                     text = "Recent Activity",
@@ -287,9 +315,9 @@ fun ProductDetailScreen(
                 Spacer(Modifier.height(16.dp))
             }
 
-            // ── Notes ─────────────────────────────────────────────────────────
+            // Notes
             if (!product.notes.isNullOrBlank()) {
-                SectionCard(
+                SectionCard (
                     title = "Notes",
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
@@ -302,7 +330,7 @@ fun ProductDetailScreen(
                 Spacer(Modifier.height(16.dp))
             }
 
-            // ── Deactivate / Activate Button ──────────────────────────────────
+            // Deactivate / Activate Button
             Spacer(Modifier.height(24.dp))
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -341,7 +369,7 @@ fun ProductDetailScreen(
         }
     }
 
-    // ── Dialogs ───────────────────────────────────────────────────────────────
+    // Dialogs
 
     if (uiState.showAdjustStockDialog) {
         AdjustStockDialog(
@@ -492,35 +520,6 @@ private fun StockHeaderCard(
 }
 
 @Composable
-private fun SectionCard(
-    title: String,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = cardShape,
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        ),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(12.dp))
-            content()
-        }
-    }
-}
-
-@Composable
 private fun PriceColumn(label: String, paise: Long?) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -561,95 +560,6 @@ private fun ActionButton(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
-    }
-}
-
-@Composable
-private fun BatchCard(batch: Batch, unit: String) {
-    val progress = if (batch.purchaseQty > 0) (batch.qtyOnHand / batch.purchaseQty).toFloat().coerceIn(0f, 1f) else 0f
-    val stockColor = when {
-        !batch.isActive || batch.qtyOnHand <= 0 -> MaterialTheme.colorScheme.error
-        progress < 0.3f -> MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.primary
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = cardShape,
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        ),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = shortDateFormatter.format(Date(batch.purchaseDate)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = "${formatQty(batch.qtyOnHand)} left",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = stockColor,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                BatchPriceItem("MRP", batch.mrp)
-                BatchPriceItem("Cost", batch.costPrice)
-                BatchPriceItem("Sell", batch.sellingPrice)
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = stockColor,
-                trackColor = stockColor.copy(alpha = 0.15f)
-            )
-
-            Spacer(Modifier.height(4.dp))
-
-            Text(
-                text = "${formatQty(batch.qtyOnHand)}/${formatQty(batch.purchaseQty)} $unit",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
-}
-
-@Composable
-private fun BatchPriceItem(label: String, paise: Long) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = "₹${paise / 100}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -1200,16 +1110,7 @@ private fun BatchDatePickerDialog(
 ) {
     val state = rememberDatePickerState(
         initialSelectedDateMillis = initialMillis,
-        // Disable selection of any date after today
-        selectableDates = object : androidx.compose.material3.SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                // Allow up to the end of today (current UTC midnight)
-                val todayStart = System.currentTimeMillis().let {
-                    it - (it % 86_400_000L)
-                }
-                return utcTimeMillis <= todayStart + 86_400_000L - 1
-            }
-        }
+        selectableDates = TodayOrEarlierDates
     )
 
     DatePickerDialog(
@@ -1226,7 +1127,3 @@ private fun BatchDatePickerDialog(
         DatePicker(state = state)
     }
 }
-
-private fun formatQty(qty: Double): String =
-    if (qty == kotlin.math.floor(qty) && !qty.isInfinite()) qty.toInt().toString()
-    else qty.toString()

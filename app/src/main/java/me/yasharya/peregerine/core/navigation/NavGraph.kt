@@ -1,6 +1,12 @@
 package me.yasharya.peregerine.core.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,10 +27,16 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
 import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.BatchDetailViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.BatchEditViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.BatchListViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.EditProductViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchDetailScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchEditScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchListScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.EditProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.ProductDetailScreen
@@ -43,13 +55,17 @@ fun NavGraph() {
     Scaffold(
         bottomBar = {
             // Rest of the pages will open without tabs
-            if (showTabs){
+            AnimatedVisibility(
+                visible = showTabs,
+                enter = slideInVertically(initialOffsetY = {it}),
+                exit = slideOutVertically(targetOffsetY = {it})
+            ) {
                 NavigationBar {
                     BottomNavItem.all.forEach { item ->
                         NavigationBarItem(
                             selected = currentRoute == item.route,
                             onClick = {
-                                val existingRoute = backStack.firstOrNull{it == item.route}
+                                val existingRoute = backStack.firstOrNull { it == item.route }
                                 if (existingRoute != null) {
                                     backStack.remove(existingRoute)
                                     backStack.add(existingRoute)
@@ -57,8 +73,13 @@ fun NavGraph() {
                                     backStack.add(item.route)
                                 }
                             },
-                            icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
-                            label = { Text(stringResource(item.labelRes))}
+                            icon = {
+                                Icon(
+                                    item.icon,
+                                    contentDescription = stringResource(item.labelRes)
+                                )
+                            },
+                            label = { Text(stringResource(item.labelRes)) }
                         )
                     }
                 }
@@ -68,9 +89,20 @@ fun NavGraph() {
         NavDisplay(
             backStack = backStack,
             onBack = {
-                if (backStack.size > 1){
-                    backStack.removeLastOrNull()
+                val current = backStack.lastOrNull() as? AppRoute
+                when {
+                    current?.isRoot() == true && current != AppRoute.Inventory -> {
+                        backStack.removeAll { (it as? AppRoute)?.isRoot() == true}
+                        backStack.add(AppRoute.Inventory)
+                    }
+                    backStack.size > 1 -> backStack.removeLastOrNull()
                 }
+            },
+            transitionSpec = {
+                slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+            },
+            popTransitionSpec = {
+                slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
             },
             modifier = Modifier.padding(innerPadding),
             entryDecorators = listOf(
@@ -129,6 +161,12 @@ fun NavGraph() {
                         },
                         onFullLedger = { _ ->
                             // TODO: Implement Full Ledger
+                        },
+                        onViewAllBatches = { productId ->
+                            backStack.add(AppRoute.BatchList(productId))
+                        },
+                        onBatchClick = { batchId ->
+                            backStack.add(AppRoute.BatchDetail(batchId, route.productId))
                         }
                     )
                 }
@@ -149,6 +187,64 @@ fun NavGraph() {
                         onBack = {backStack.removeLastOrNull()}
                     )
                 }
+
+                entry<AppRoute.BatchList> { route ->
+                    val viewModel: BatchListViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                BatchListViewModel(
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+
+                    BatchListScreen(
+                        viewModel = viewModel,
+                        onBack = { backStack.removeLastOrNull() },
+                        onBatchClick = { batchId ->
+                            backStack.add(AppRoute.BatchDetail(batchId = batchId, productId = route.productId))
+                        }
+                    )
+                }
+
+                entry<AppRoute.BatchDetail> { route ->
+                    val viewModel: BatchDetailViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                BatchDetailViewModel(
+                                    batchId = route.batchId,
+                                    productId = route.productId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+                    BatchDetailScreen(
+                        viewModel = viewModel,
+                        onBack = { backStack.removeLastOrNull() },
+                        onEditBatch = {batchId ->
+                            backStack.add(AppRoute.EditBatch(batchId = batchId, productId = route.productId))
+                        }
+                    )
+                }
+
+                entry<AppRoute.EditBatch>{ route ->
+                    val viewModel: BatchEditViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                BatchEditViewModel(
+                                    batchId = route.batchId,
+                                    inventoryUseCases = container.inventoryUseCases
+                                )
+                            }
+                        }
+                    )
+
+                    BatchEditScreen(viewModel = viewModel, onBack = { backStack.removeLastOrNull() })
+                }
+
                 entry<AppRoute.PurchaseOrder> {
                     Text("Purchase Order")
                 }

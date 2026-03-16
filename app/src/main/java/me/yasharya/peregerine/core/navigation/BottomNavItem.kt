@@ -19,6 +19,10 @@ sealed interface AppRoute: NavKey {
     @Serializable data object AddProduct: AppRoute
     @Serializable data class ProductDetail(val productId: String): AppRoute
     @Serializable data class EditProduct(val productId: String): AppRoute
+
+    @Serializable data class BatchList(val productId: String): AppRoute
+    @Serializable data class BatchDetail(val batchId: String, val productId: String): AppRoute
+    @Serializable data class EditBatch(val batchId: String, val productId: String): AppRoute
 }
 
 fun AppRoute.isRoot(): Boolean = when(this) {

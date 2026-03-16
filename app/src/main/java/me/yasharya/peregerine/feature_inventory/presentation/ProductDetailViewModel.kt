@@ -31,6 +31,7 @@ class ProductDetailViewModel(private val productId: String, private val inventor
             }
             .launchIn(viewModelScope)
 
+        // TODO: Optimise fetching of all the batches
         inventoryUseCases.observeBatchesForProduct(productId)
             .onEach { batches ->
                 val sorted = batches.sortedWith (

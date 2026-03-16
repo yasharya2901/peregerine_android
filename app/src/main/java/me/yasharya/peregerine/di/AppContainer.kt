@@ -51,7 +51,9 @@ class AppContainer(context: Context) {
         searchUnits = SearchUnits(inventoryRepository),
         insertUnit = InsertUnit(inventoryRepository),
         addBatch = AddBatch(inventoryRepository),
-        observeRecentStockLedgerForProduct = ObserveRecentStockLedgerForProduct(inventoryRepository)
+        observeRecentStockLedgerForProduct = ObserveRecentStockLedgerForProduct(inventoryRepository),
+        observeBatchById = ObserveBatchById(inventoryRepository),
+        observePagedBatchesForProduct = ObservePagedBatchesForProduct(inventoryRepository)
     )
 
     init {
