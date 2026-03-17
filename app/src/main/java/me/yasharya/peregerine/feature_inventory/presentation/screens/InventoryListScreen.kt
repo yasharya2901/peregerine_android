@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -88,7 +89,12 @@ private fun emptyStateResFor(filter: InventoryFilter) = when (filter) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit, onProductClick: (productId: String) -> Unit) {
+fun InventoryListScreen(
+    viewModel: InventoryViewModel,
+    onAddProduct: () -> Unit,
+    onProductClick: (productId: String) -> Unit,
+    onScanBarcode: () -> Unit,
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pagedProducts: LazyPagingItems<ProductInventorySummary> = viewModel.pagedProducts.collectAsLazyPagingItems()
 
@@ -153,6 +159,14 @@ fun InventoryListScreen(viewModel: InventoryViewModel, onAddProduct: () -> Unit,
                             Icon(
                                 Icons.Default.Close,
                                 contentDescription = "Clear"
+                            )
+                        }
+                    }  else {
+                        IconButton(onClick = onScanBarcode) {
+                            Icon(
+                                imageVector = Icons.Outlined.QrCodeScanner,
+                                contentDescription = "Scan Barcode",
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }

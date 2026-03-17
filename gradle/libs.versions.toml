@@ -19,6 +19,10 @@ lifecycleViewmodelNav3 = "2.11.0-alpha01"
 kotlinSerialization = "2.2.21"
 kotlinxSerializationCore = "1.9.0"
 
+camerax                 = "1.5.1"
+mlkitBarcode            = "17.3.0"
+accompanistPermissions  = "0.37.0"
+
 
 
 [libraries]
@@ -60,6 +64,15 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "pagingCommon" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCompose" }
 
+androidx-camera-camera2   = { module = "androidx.camera:camera-camera2",      version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle",    version.ref = "camerax" }
+androidx-camera-compose   = { module = "androidx.camera:camera-compose",      version.ref = "camerax" }
+androidx-camera-mlkit     = { module = "androidx.camera:camera-mlkit-vision", version.ref = "camerax" }
+
+mlkit-barcode-scanning    = { module = "com.google.mlkit:barcode-scanning",   version.ref = "mlkitBarcode" }
+
+accompanist-permissions   = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -67,3 +80,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 
 ksp = { id = "com.google.devtools.ksp", version = "2.3.5" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
+

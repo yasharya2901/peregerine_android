@@ -32,9 +32,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -80,7 +80,8 @@ private val cardShape = RoundedCornerShape(16.dp)
 fun AddProductScreen(
     viewModel: AddProductViewModel,
     onBack: () -> Unit,
-    onNavigateToProductDetail: (productId: String) -> Unit
+    onNavigateToProductDetail: (productId: String) -> Unit,
+    onScanBarcode: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val unitSearchQuery by viewModel.unitSearchQuery.collectAsStateWithLifecycle()
@@ -183,7 +184,7 @@ fun AddProductScreen(
                     placeholder = "Scan or enter manually",
                     trailingIcon = {
                         IconButton(
-                            onClick = { /* TODO: ML Kit barcode integration */ }
+                            onClick = onScanBarcode
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.QrCodeScanner,
@@ -556,7 +557,7 @@ private fun UnitSelectorRow(
                 )
             }
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)

@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -77,6 +78,7 @@ private val editCardShape = RoundedCornerShape(16.dp)
 @Composable
 fun EditProductScreen(
     viewModel: EditProductViewModel,
+    onScanBarcode: () -> Unit,
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -180,7 +182,7 @@ fun EditProductScreen(
                         singleLine = true,
                         shape = editFieldShape,
                         trailingIcon = {
-                            IconButton(onClick = { /* TODO: barcode scan */ }) {
+                            IconButton(onClick = onScanBarcode) {
                                 Icon(
                                     Icons.Outlined.QrCodeScanner,
                                     contentDescription = "Scan",
@@ -320,7 +322,7 @@ private fun EditUnitSelector(selectedUnit: MeasureUnit?, error: String?, onClick
             } else {
                 Text("Select Unit *", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }
         if (error != null) {
             Text(error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(start = 16.dp, top = 4.dp))

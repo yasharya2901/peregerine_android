@@ -23,6 +23,7 @@ sealed interface AppRoute: NavKey {
     @Serializable data class BatchList(val productId: String): AppRoute
     @Serializable data class BatchDetail(val batchId: String, val productId: String): AppRoute
     @Serializable data class EditBatch(val batchId: String, val productId: String): AppRoute
+    @Serializable data object ScanBarcode : AppRoute
 }
 
 fun AppRoute.isRoot(): Boolean = when(this) {

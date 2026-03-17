@@ -14,6 +14,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,6 +31,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.yasharya.peregerine.App
 import me.yasharya.peregerine.feature_inventory.presentation.AddProductViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.BarcodeScannerViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.BatchDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.BatchEditViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.BatchListViewModel
@@ -34,6 +39,7 @@ import me.yasharya.peregerine.feature_inventory.presentation.EditProductViewMode
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.BarcodeScannerScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchDetailScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchEditScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchListScreen
@@ -48,7 +54,7 @@ fun NavGraph() {
     val container = (context.applicationContext as App).container
 
     val backStack = rememberNavBackStack(AppRoute.Inventory)
-    val currentRoute = backStack.last() as? AppRoute
+    val currentRoute = backStack.lastOrNull() as? AppRoute
 
     val showTabs = currentRoute?.isRoot() == true
 
@@ -86,6 +92,8 @@ fun NavGraph() {
             }
         }
     ) { innerPadding ->
+
+        var pendingScanCallback by remember {mutableStateOf<((String) -> Unit)?>(null)}
         NavDisplay(
             backStack = backStack,
             onBack = {
@@ -121,6 +129,10 @@ fun NavGraph() {
                         onAddProduct = {backStack.add(AppRoute.AddProduct)},
                         onProductClick = {productId ->
                             backStack.add(AppRoute.ProductDetail(productId))
+                        },
+                        onScanBarcode = {
+                            pendingScanCallback = viewModel::setSearchQuery
+                            backStack.add(AppRoute.ScanBarcode)
                         }
                     )
                 }
@@ -138,6 +150,10 @@ fun NavGraph() {
                         onNavigateToProductDetail = {productId ->
                             backStack.removeLastOrNull()
                             backStack.add(AppRoute.ProductDetail(productId))
+                        },
+                        onScanBarcode = {
+                            pendingScanCallback = viewModel::onBarcodeChange
+                            backStack.add(AppRoute.ScanBarcode)
                         }
                     )
                 }
@@ -184,7 +200,30 @@ fun NavGraph() {
                     )
                     EditProductScreen(
                         viewModel = viewModel,
-                        onBack = {backStack.removeLastOrNull()}
+                        onBack = {backStack.removeLastOrNull()},
+                        onScanBarcode = {
+                            pendingScanCallback = viewModel::onBarcodeChange
+                            backStack.add(AppRoute.ScanBarcode)
+                        }
+                    )
+                }
+
+                entry<AppRoute.ScanBarcode> {
+                    val viewModel: BarcodeScannerViewModel = viewModel {
+                        BarcodeScannerViewModel()
+                    }
+
+                    BarcodeScannerScreen(
+                        viewModel = viewModel,
+                        onBarcodeScanned = {barcode ->
+                            pendingScanCallback?.invoke(barcode)
+                            pendingScanCallback = null
+                            backStack.removeLastOrNull()
+                        },
+                        onBack = {
+                            pendingScanCallback = null
+                            backStack.removeLastOrNull()
+                        }
                     )
                 }
 

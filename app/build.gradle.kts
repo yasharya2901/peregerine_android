@@ -74,6 +74,14 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.compose)
+    implementation(libs.androidx.camera.mlkit)
+    implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.accompanist.permissions)
+
+
     // --- Tests ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
