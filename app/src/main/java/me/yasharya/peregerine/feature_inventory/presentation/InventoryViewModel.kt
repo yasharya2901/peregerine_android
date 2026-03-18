@@ -31,9 +31,9 @@ class InventoryViewModel(
     val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
 
     val pagedProducts : Flow<PagingData<ProductInventorySummary>> = _uiState
-        .map { it.filter to it.searchQuery }
+        .map { it.filter }
         .distinctUntilChanged()
-        .flatMapLatest { (filter, query) ->
+        .flatMapLatest { filter ->
             when(filter) {
                 InventoryFilter.ALL -> inventoryUseCases.observeProductInventorySummary(activeOnly = true)
                 InventoryFilter.LOW_STOCK -> inventoryUseCases.observeLowStockProducts()

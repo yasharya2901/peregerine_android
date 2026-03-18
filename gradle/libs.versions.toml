@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.1"
+agp = "9.1.0"
 kotlin = "2.3.10"
 
 coreKtx = "1.17.0"
@@ -16,7 +16,6 @@ pagingCommon = "3.4.1"
 pagingCompose = "3.4.1"
 nav3Core = "1.0.1"
 lifecycleViewmodelNav3 = "2.11.0-alpha01"
-kotlinSerialization = "2.2.21"
 kotlinxSerializationCore = "1.9.0"
 
 camerax                 = "1.5.1"
@@ -79,5 +78,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 ksp = { id = "com.google.devtools.ksp", version = "2.3.5" }
-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
