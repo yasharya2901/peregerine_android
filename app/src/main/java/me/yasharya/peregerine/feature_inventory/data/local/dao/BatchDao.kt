@@ -1,5 +1,6 @@
 package me.yasharya.peregerine.feature_inventory.data.local.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
@@ -22,5 +23,18 @@ interface BatchDao {
 
     @Query("SELECT * FROM batch WHERE id = :batchId LIMIT 1")
     suspend fun getBatchById(batchId: String): BatchEntity?
+
+    @Query("""
+        SELECT * FROM batch
+        WHERE productId = :productId
+        AND (
+            (:showActive = 1 AND isActive = 1)
+            OR
+            (:showInactive = 1 AND isActive = 0)
+        )
+        ORDER BY isActive DESC, purchaseDate ASC
+    """)
+    fun getPagedBatchesForProduct(productId: String, showActive: Boolean, showInactive: Boolean): PagingSource<Int, BatchEntity>
+
 
 }

@@ -5,6 +5,7 @@ data class InventoryUseCases(
     val searchProducts: SearchProducts,
     val observeProduct: ObserveProduct,
     val createProduct: CreateProduct,
+    val createProductWithOpeningStock: CreateProductWithOpeningStock,
     val activateProduct: ActivateProduct,
     val deactivateProduct: DeactivateProduct,
     val observeProductInventorySummary: ObserveProductInventorySummary,
@@ -18,5 +19,16 @@ data class InventoryUseCases(
     val observeAllStockLedger: ObserveAllStockLedger,
     val insertStockLedgerEntry: InsertStockLedgerEntry,
     val insertMultipleStockLedgerEntries: InsertMultipleStockLedgerEntries,
-    val adjustStock: AdjustStock
+    val adjustStock: AdjustStock,
+    val observeTotalActiveProductCount: ObserveTotalActiveProductCount,
+    val observeLowStockCount: ObserveLowStockCount,
+    val observeOutOfStockCount: ObserveOutOfStockCount,
+    val observeNotStockedProducts: ObserveNotStockedProducts,
+    val observeUnits: ObserveUnits,
+    val searchUnits: SearchUnits,
+    val insertUnit: InsertUnit,
+    val addBatch: AddBatch,
+    val observeRecentStockLedgerForProduct: ObserveRecentStockLedgerForProduct,
+    val observeBatchById: ObserveBatchById,
+    val observePagedBatchesForProduct: ObservePagedBatchesForProduct
 )

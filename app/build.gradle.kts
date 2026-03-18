@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -50,18 +51,20 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.paging.common)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.paging.compose)
 
     ksp(libs.androidx.room.compiler)
-    
 
-    // --- Core AndroidX ---
     implementation(libs.androidx.core.ktx)
-
-    // Lifecycle runtime (you already had this)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
+
 
     // --- Compose UI ---
     implementation(libs.androidx.activity.compose)
@@ -70,6 +73,14 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.compose)
+    implementation(libs.androidx.camera.mlkit)
+    implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.accompanist.permissions)
+
 
     // --- Tests ---
     testImplementation(libs.junit)

@@ -9,6 +9,7 @@ data class Batch(
     val mrp: Money,
     val costPrice: Money,
     val sellingPrice: Money,
+    val purchaseQty: Double,
     val qtyOnHand: Double,
     val isActive: Boolean,
     val createdAt: Long,
