@@ -180,7 +180,7 @@ class ProductDetailViewModel(private val productId: String, private val inventor
 
         val mrp = dialog.mrp.toPaiseOrNull()
         val cost = dialog.costPrice.toPaiseOrNull()
-        val sell = dialog.costPrice.toPaiseOrNull()
+        val sell = dialog.sellingPrice.toPaiseOrNull()
         val qty = dialog.qty.toDoubleOrNull()?.takeIf { it > 0 }
 
         if (mrp == null) {

@@ -6,10 +6,12 @@ import java.util.TimeZone
 
 object TodayOrEarlierDates: SelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        val selectedCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val utc = TimeZone.getTimeZone("UTC")
+
+        val selectedCal = Calendar.getInstance(utc)
         selectedCal.timeInMillis = utcTimeMillis
 
-        val todayCal = Calendar.getInstance()
+        val todayCal = Calendar.getInstance(utc)
 
         return when {
             selectedCal.get(Calendar.YEAR) < todayCal.get(Calendar.YEAR) -> true

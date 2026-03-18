@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import me.yasharya.peregerine.core.util.formatQty
+import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -165,7 +166,7 @@ fun AdjustStockDialog(
 
                                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Text(
-                                                text = "Cost ₹${batch.costPrice / 100} · MRP ₹${batch.mrp / 100}",
+                                                text = "Cost ₹${batch.costPrice.fromPaise()} · MRP ₹${batch.mrp.fromPaise()}",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )

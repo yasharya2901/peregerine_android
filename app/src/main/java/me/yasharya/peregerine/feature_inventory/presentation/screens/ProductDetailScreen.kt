@@ -72,6 +72,7 @@ import me.yasharya.peregerine.core.ui.components.BatchCard
 import me.yasharya.peregerine.core.ui.components.SectionCard
 import me.yasharya.peregerine.core.ui.components.TodayOrEarlierDates
 import me.yasharya.peregerine.core.util.formatQty
+import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
@@ -499,19 +500,22 @@ private fun StockHeaderCard(
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     threshold?.let {
-                        Text(
-                            text = "Threshold: ${formatQty(it)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    defaultSellingPrice?.let {
-                        Text(
-                            text = "₹${it / 100}/$unit",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = stockColor,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                        ) {
+                            Text(
+                                text = "Low Stock Threshold",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Text(
+                                text = "${formatQty(it)} $unit",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             }
@@ -528,7 +532,7 @@ private fun PriceColumn(label: String, paise: Long?) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = if (paise != null) "₹${paise / 100}" else "—",
+            text = if (paise != null) "₹${paise.fromPaise()}" else "—",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )

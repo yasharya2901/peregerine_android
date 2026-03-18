@@ -35,7 +35,7 @@ class BatchEditViewModel(
                 it.copy(
                     isLoading = false,
                     purchaseDateMillis = batch.purchaseDate,
-                    mrp = batch.mrp.toString(),
+                    mrp = batch.mrp.fromPaise(),
                     costPrice = batch.costPrice.fromPaise(),
                     sellingPrice = batch.sellingPrice.fromPaise()
                 )

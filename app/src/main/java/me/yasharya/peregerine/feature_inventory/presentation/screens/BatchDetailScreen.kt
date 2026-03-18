@@ -42,6 +42,7 @@ import me.yasharya.peregerine.core.ui.components.AdjustStockDialog
 import me.yasharya.peregerine.core.ui.components.BatchCard
 import me.yasharya.peregerine.core.ui.components.SectionCard
 import me.yasharya.peregerine.core.util.formatQty
+import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import me.yasharya.peregerine.feature_inventory.presentation.BatchDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.model.previewText
@@ -237,7 +238,7 @@ private fun PriceDetail(label: String, paise: Long) {
         )
 
         Text(
-            text = "₹${paise / 100}",
+            text = "₹${paise.fromPaise()}",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )

@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.yasharya.peregerine.core.util.formatQty
+import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -148,7 +149,7 @@ private fun BatchPriceItem(label: String, paise: Long) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "₹${paise / 100}",
+            text = "₹${paise.fromPaise()}",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )

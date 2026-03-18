@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 
@@ -72,7 +73,7 @@ fun ProductCard(
 
                 item.product.defaultSellingPrice?.let {price ->
                     Text(
-                        text = "₹${price / 100}",
+                        text = "₹${price.fromPaise()}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
