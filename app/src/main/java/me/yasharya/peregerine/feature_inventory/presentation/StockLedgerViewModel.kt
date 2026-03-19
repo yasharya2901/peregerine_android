@@ -53,11 +53,11 @@ class StockLedgerViewModel(
 
     val ledgerEntries: Flow<PagingData<StockLedgerEntryWithProduct>> =
         combine(
-            _uiState.map {it.selectedProduct}.distinctUntilChanged(),
+            _uiState.map {it.selectedProduct?.id }.distinctUntilChanged(),
             _uiState.map {it.selectedType}.distinctUntilChanged()
-        ) { product, type -> product to type }
-            .flatMapLatest { (product, type) ->
-                inventoryUseCases.observeAllStockLedger(product?.id, type)
+        ) { productId, type -> productId to type }
+            .flatMapLatest { (productId, type) ->
+                inventoryUseCases.observeAllStockLedger(productId, type)
             }
             .cachedIn(viewModelScope)
 
