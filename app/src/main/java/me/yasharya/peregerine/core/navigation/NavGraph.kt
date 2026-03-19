@@ -38,6 +38,7 @@ import me.yasharya.peregerine.feature_inventory.presentation.BatchListViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.EditProductViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.InventoryViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
+import me.yasharya.peregerine.feature_inventory.presentation.StockLedgerViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.screens.AddProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.BarcodeScannerScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchDetailScreen
@@ -46,6 +47,7 @@ import me.yasharya.peregerine.feature_inventory.presentation.screens.BatchListSc
 import me.yasharya.peregerine.feature_inventory.presentation.screens.EditProductScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.InventoryListScreen
 import me.yasharya.peregerine.feature_inventory.presentation.screens.ProductDetailScreen
+import me.yasharya.peregerine.feature_inventory.presentation.screens.StockLedgerScreen
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -136,7 +138,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.AddProduct> {
                     val viewModel: AddProductViewModel = viewModel(
                         factory = viewModelFactory {
@@ -175,8 +176,8 @@ fun NavGraph() {
                         onEditProduct = { productId ->
                             backStack.add(AppRoute.EditProduct(productId))
                         },
-                        onFullLedger = { _ ->
-                            // TODO: Implement Full Ledger
+                        onFullLedger = { productId ->
+                            backStack.add(AppRoute.StockLedger(productId))
                         },
                         onViewAllBatches = { productId ->
                             backStack.add(AppRoute.BatchList(productId))
@@ -186,7 +187,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.EditProduct> {route ->
                     val viewModel: EditProductViewModel = viewModel(
                         factory = viewModelFactory {
@@ -207,7 +207,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.ScanBarcode> {
                     val viewModel: BarcodeScannerViewModel = viewModel {
                         BarcodeScannerViewModel()
@@ -226,7 +225,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.BatchList> { route ->
                     val viewModel: BatchListViewModel = viewModel(
                         factory = viewModelFactory {
@@ -247,7 +245,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.BatchDetail> { route ->
                     val viewModel: BatchDetailViewModel = viewModel(
                         factory = viewModelFactory {
@@ -268,7 +265,6 @@ fun NavGraph() {
                         }
                     )
                 }
-
                 entry<AppRoute.EditBatch>{ route ->
                     val viewModel: BatchEditViewModel = viewModel(
                         factory = viewModelFactory {
@@ -282,6 +278,24 @@ fun NavGraph() {
                     )
 
                     BatchEditScreen(viewModel = viewModel, onBack = { backStack.removeLastOrNull() })
+                }
+
+                entry<AppRoute.StockLedger> { entry ->
+                    val viewModel: StockLedgerViewModel = viewModel(
+                        factory = viewModelFactory {
+                            initializer {
+                                StockLedgerViewModel(inventoryUseCases = container.inventoryUseCases, initialProductId = entry.productId)
+                            }
+                        }
+                    )
+
+                    StockLedgerScreen(
+                        viewModel = viewModel,
+                        onScanBarcode = {
+                            pendingScanCallback = viewModel::setProductQuery
+                            backStack.add(AppRoute.ScanBarcode)
+                        }
+                    )
                 }
 
                 entry<AppRoute.PurchaseOrder> {

@@ -22,13 +22,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.RemoveShoppingCart
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,7 +57,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -69,13 +64,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.yasharya.peregerine.core.ui.components.BatchCard
+import me.yasharya.peregerine.core.ui.components.LedgerEntryRow
 import me.yasharya.peregerine.core.ui.components.SectionCard
 import me.yasharya.peregerine.core.ui.components.TodayOrEarlierDates
 import me.yasharya.peregerine.core.util.formatQty
 import me.yasharya.peregerine.core.util.fromPaise
 import me.yasharya.peregerine.feature_inventory.domain.model.Batch
-import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
-import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
 import me.yasharya.peregerine.feature_inventory.presentation.ProductDetailViewModel
 import me.yasharya.peregerine.feature_inventory.presentation.model.AddBatchDialogState
 import me.yasharya.peregerine.feature_inventory.presentation.model.AdjustStockDialogState
@@ -89,8 +83,6 @@ import java.util.Locale
 private val cardShape = RoundedCornerShape(16.dp)
 private val fieldShape = RoundedCornerShape(12.dp)
 private val dateFormatter = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
-private val shortDateFormatter = SimpleDateFormat("d MMM", Locale.getDefault())
-
 private const val MAX_BATCHES_SHOWN = 5
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -305,7 +297,13 @@ fun ProductDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     uiState.recentLedger.forEachIndexed { index, entry ->
-                        LedgerEntryRow(entry = entry, unit = product.unit)
+                        LedgerEntryRow(
+                            type = entry.type,
+                            deltaQty = entry.deltaQty,
+                            note = entry.note,
+                            createdAt = entry.createdAt,
+                            unit = product.unit
+                        )
                         if (index < uiState.recentLedger.lastIndex) {
                             HorizontalDivider(
                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
@@ -462,12 +460,6 @@ private fun StockHeaderCard(
     defaultSellingPrice: Long?,
     modifier: Modifier = Modifier,
 ) {
-    val stockColor = when {
-        totalStock <= 0 -> MaterialTheme.colorScheme.error
-        threshold != null && totalStock <= threshold -> MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.primary
-    }
-
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -562,68 +554,6 @@ private fun ActionButton(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun LedgerEntryRow(entry: StockLedgerEntry, unit: String) {
-    val isPositive = entry.deltaQty > 0
-    val deltaColor = if (isPositive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
-
-    val (icon, label, subtitle) = when (entry.type) {
-        StockChangeType.OPENING -> Triple(Icons.AutoMirrored.Filled.TrendingUp, "Opening", "Initial stock")
-        StockChangeType.PURCHASE_RECEIPT -> Triple(Icons.AutoMirrored.Filled.TrendingUp, "Purchase", entry.note ?: "Restocked")
-        StockChangeType.ADJUSTMENT -> Triple(Icons.Default.Build, "Adjustment", entry.note ?: "Manual adjustment")
-        StockChangeType.SALE -> Triple(Icons.Default.RemoveShoppingCart, "Sale", entry.note ?: "Billed to customer")
-        StockChangeType.RETURN -> Triple(Icons.Default.ShoppingCart, "Return", entry.note ?: "Customer return")
-        StockChangeType.VOID -> Triple(Icons.Default.Close, "Void", entry.note ?: "Voided")
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Surface(
-            shape = RoundedCornerShape(10.dp),
-            color = deltaColor.copy(alpha = 0.12f),
-            modifier = Modifier.size(36.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = deltaColor,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Column(horizontalAlignment = Alignment.End) {
-            val deltaStr = "${if (isPositive) "+" else ""}${formatQty(entry.deltaQty)}"
-            Text(
-                text = deltaStr,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = deltaColor
-            )
-            Text(
-                text = shortDateFormatter.format(Date(entry.createdAt)),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

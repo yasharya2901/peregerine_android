@@ -21,6 +21,7 @@ import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
+import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntryWithProduct
 import me.yasharya.peregerine.feature_inventory.domain.repository.InventoryRepository
 
 class InventoryRepositoryImpl (
@@ -231,9 +232,13 @@ class InventoryRepositoryImpl (
         }
     }
 
-    override fun observeAllStockLedger(): Flow<PagingData<StockLedgerEntry>> {
-        return Pager(config = PagingConfig(pageSize = Constants.DEFAULT_PAGE_SIZE, enablePlaceholders = false), pagingSourceFactory = {ledgerDao.pagingSource()}).flow.map { stockLedgers ->
-            stockLedgers.map {it.toDomain()}
+    override fun observeAllStockLedger(
+        productId: String?,
+        type: StockChangeType?
+    ): Flow<PagingData<StockLedgerEntryWithProduct>> {
+        val typeString = type?.name
+        return Pager(config = PagingConfig(pageSize = Constants.DEFAULT_PAGE_SIZE, enablePlaceholders = false), pagingSourceFactory = {ledgerDao.pagingSourceFiltered(productId, typeString)}).flow.map { pagingData ->
+            pagingData.map { it.toDomain() }
         }
     }
 

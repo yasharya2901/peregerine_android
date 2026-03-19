@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerEntity
+import me.yasharya.peregerine.feature_inventory.data.local.entity.StockLedgerWithProductDto
 
 @Dao
 interface StockLedgerDao {
@@ -37,4 +38,14 @@ interface StockLedgerDao {
         LIMIT :limit
     """)
     fun getRecentByProduct(productId: String, limit: Int): Flow<List<StockLedgerEntity>>
+
+    @Query("""
+        SELECT sl.*, p.name AS productName, p.unit AS productUnit
+        FROM stock_ledger sl
+        INNER JOIN products p ON sl.productId = p.id
+        WHERE (:productId IS NULL OR sl.productId = :productId)
+        AND (:type IS NULL OR sl.type = :type)
+        ORDER BY sl.createdAt DESC
+    """)
+    fun pagingSourceFiltered(productId: String?, type: String?): PagingSource<Int, StockLedgerWithProductDto>
 }
