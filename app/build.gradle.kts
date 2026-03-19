@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.paging.common)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.paging.compose)
-    implementation(libs.androidx.compose.animation)
 
     ksp(libs.androidx.room.compiler)
 
