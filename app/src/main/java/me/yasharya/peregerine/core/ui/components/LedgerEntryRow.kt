@@ -85,7 +85,7 @@ fun LedgerEntryRow(
             Surface(
                 shape = RoundedCornerShape(10.dp),
                 color = deltaColor.copy(alpha = 0.12f),
-                modifier = Modifier.size(36.dp).padding()
+                modifier = Modifier.size(36.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(imageVector = icon, contentDescription = null, tint = deltaColor, modifier = Modifier.size(18.dp))
