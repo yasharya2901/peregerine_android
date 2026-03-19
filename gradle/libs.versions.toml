@@ -21,6 +21,7 @@ kotlinxSerializationCore = "1.9.0"
 camerax                 = "1.5.1"
 mlkitBarcode            = "17.3.0"
 accompanistPermissions  = "0.37.0"
+animation = "1.10.5"
 
 
 
@@ -71,6 +72,7 @@ androidx-camera-mlkit     = { module = "androidx.camera:camera-mlkit-vision", ve
 mlkit-barcode-scanning    = { module = "com.google.mlkit:barcode-scanning",   version.ref = "mlkitBarcode" }
 
 accompanist-permissions   = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -64,6 +64,7 @@ fun BarcodeScannerScreen(
             cameraPermission.launchPermissionRequest()
         }
     }
+
     LaunchedEffect(cameraPermission.status.isGranted) {
         if (cameraPermission.status.isGranted) {
             viewModel.bindCamera(context, lifecycleOwner)

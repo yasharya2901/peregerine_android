@@ -3,6 +3,7 @@
 
     <!-- Tab Labels -->
     <string name="tab_inventory">Inventory</string>
+    <string name="tab_ledger">Ledger</string>
     <string name="tab_purchase_order">Purchase Order</string>
     <string name="tab_settings">Settings</string>
 
@@ -37,4 +38,6 @@
 
     <string name="empty_search_title">No results found</string>
     <string name="empty_search_subtitle">Try a different name or barcode.</string>
+
+    <string name="search_placeholder">Search by name or barcode</string>
 </resources>

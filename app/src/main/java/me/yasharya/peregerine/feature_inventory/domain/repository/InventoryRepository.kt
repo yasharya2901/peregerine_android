@@ -9,6 +9,7 @@ import me.yasharya.peregerine.feature_inventory.domain.model.Product
 import me.yasharya.peregerine.feature_inventory.domain.model.ProductInventorySummary
 import me.yasharya.peregerine.feature_inventory.domain.model.StockChangeType
 import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntry
+import me.yasharya.peregerine.feature_inventory.domain.model.StockLedgerEntryWithProduct
 
 interface InventoryRepository {
     // Products
@@ -50,7 +51,10 @@ interface InventoryRepository {
         productId: String
     ): Flow<PagingData<StockLedgerEntry>>
 
-    fun observeAllStockLedger(): Flow<PagingData<StockLedgerEntry>>
+    fun observeAllStockLedger(
+        productId: String? = null,
+        type: StockChangeType? = null
+    ): Flow<PagingData<StockLedgerEntryWithProduct>>
 
     suspend fun insertStockLedgerEntry(entry: StockLedgerEntry)
     suspend fun insertMultipleStockLedgerEntry(entries: List<StockLedgerEntry>)

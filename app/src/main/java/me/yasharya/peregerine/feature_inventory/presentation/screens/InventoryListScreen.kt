@@ -145,7 +145,7 @@ fun InventoryListScreen(
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = viewModel::setSearchQuery,
-                placeholder = {Text("Search by name of barcode...")},
+                placeholder = {Text(text = stringResource(R.string.search_placeholder))},
                 leadingIcon = {
                     Icon(
                         Icons.Outlined.Search,
