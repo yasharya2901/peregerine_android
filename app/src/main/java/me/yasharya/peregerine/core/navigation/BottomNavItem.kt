@@ -2,10 +2,12 @@ package me.yasharya.peregerine.core.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
@@ -44,8 +46,8 @@ data class BottomNavItem(
     companion object {
         val all = listOf(
             BottomNavItem(AppRoute.Inventory, R.string.tab_inventory, Icons.Outlined.Inventory2),
-            BottomNavItem(AppRoute.StockLedger(), R.string.tab_ledger, Icons.AutoMirrored.Outlined.MenuBook),
-            BottomNavItem(AppRoute.PurchaseOrder,  R.string.tab_purchase_order,  Icons.Outlined.Receipt),
+            BottomNavItem(AppRoute.StockLedger(), R.string.tab_ledger, Icons.AutoMirrored.Outlined.LibraryBooks),
+            BottomNavItem(AppRoute.PurchaseOrder,  R.string.tab_purchase_order,  Icons.Outlined.ShoppingBag),
             BottomNavItem(AppRoute.Settings,  R.string.tab_settings,  Icons.Outlined.Settings)
         )
     }

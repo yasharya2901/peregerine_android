@@ -8,6 +8,13 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("androidx.concurrent:concurrent-futures:1.2.0")
+        force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    }
+}
+
 android {
     namespace = "me.yasharya.peregerine"
     compileSdk = 36
